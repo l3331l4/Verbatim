@@ -1,0 +1,33 @@
+# Python
+apps/services/orchestrator/venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.env
+
+# Next.js
+apps/frontend/node_modules/
+*.log
+package-lock.json
+yarn.lock
+.next/
+out/
+
+# Logs
+logs/
+*.log
+
+# Docker
+*.env.local
+docker-compose.override.yml
+
+# VSCode
+.vscode/
+
+# macOS
+.DS_Store
+
+# MongoDB backups
+dump/
+*.bak
