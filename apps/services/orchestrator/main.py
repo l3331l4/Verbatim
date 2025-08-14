@@ -1,7 +1,10 @@
 from fastapi import FastAPI, HTTPException
 from apps.services.orchestrator.db.meetings import create_meeting
+from apps.services.orchestrator.routes import health
 
 app = FastAPI()
+
+app.include_router(health.router)
 
 @app.post("/meetings")
 async def create_meeting_endpoint():

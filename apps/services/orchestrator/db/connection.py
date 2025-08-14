@@ -17,7 +17,7 @@ DB_NAME = os.getenv("DB_NAME")
 if not DB_NAME:
     raise ValueError("DB_NAME environment variable is not set")
 
-client = MongoClient(MONGODB_URI, server_api=ServerApi('1'))
+client = MongoClient(MONGODB_URI, server_api=ServerApi('1'), serverSelectionTimeoutMS=5000)
 
 def connect_to_mongodb():
     try:
