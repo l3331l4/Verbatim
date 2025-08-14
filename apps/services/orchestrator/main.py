@@ -1,7 +1,9 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from apps.services.orchestrator.db.meetings import create_meeting
 from apps.services.orchestrator.routes import health
-from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import Optional
 
 app = FastAPI()
 
@@ -20,10 +22,13 @@ app.add_middleware(
 
 app.include_router(health.router)
 
+class MeetingCreateRequest(BaseModel):
+    title: Optional[str] = None
+
 @app.post("/meetings")
-async def create_meeting_endpoint():
+def create_meeting_endpoint(meeting: MeetingCreateRequest):
     try:
-        meeting_id = create_meeting()
+        meeting_id = create_meeting(title=meeting.title)
         return {"meeting_id": meeting_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create meeting: {e}")

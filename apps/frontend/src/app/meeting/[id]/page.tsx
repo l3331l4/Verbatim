@@ -2,7 +2,10 @@ interface MeetingPageProps {
     params: { id: string };
 }
 
-export default function MeetingPage({ params }: MeetingPageProps) {
+export default async function MeetingPage({ params }: MeetingPageProps) {
+    
+    const { id } = await params;
+
     return (
         <div
             style={{
@@ -14,7 +17,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
                 background: "#f9f9f9",
             }}>
             <div>
-                <h1 style={{ color: "#222" }}>Meeting: {params.id}</h1>
+                <h1 style={{ color: "#222" }}>Meeting: {id}</h1>
                 <div style={{ color: "#222" }} id="transcript">Transcript will appear here...</div>
             </div>
         </div>

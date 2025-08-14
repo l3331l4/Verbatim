@@ -1,20 +1,17 @@
 "use client";
 import { useState } from "react";
+import { createMeeting } from "../../lib/api";
 
 export default function CreateMeetingPage() {
     const [meetingId, setMeetingId] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [title, setTitle] = useState<string>("");
 
     const handleCreateMeeting = async () => {
         setLoading(true);
         setMeetingId(null);
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-            const res = await fetch(`${apiUrl}/meetings`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-            });
-            const data = await res.json();
+            const data = await createMeeting(title);
             setMeetingId(data.meeting_id);
         } catch (err) {
             setMeetingId("Error creating meeting");
@@ -33,6 +30,23 @@ export default function CreateMeetingPage() {
                 alignItems: "center",
                 background: "#f9f9f9",
             }}>
+                <input
+                type="text"
+                placeholder="Enter meeting title"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                style={{
+                    padding: "0.75rem 1.5rem",
+                    fontSize: "1.2rem",
+                    borderRadius: "1rem",
+                    border: "1px solid #ccc",
+                    marginBottom: "1.5rem",
+                    width: "300px",
+                    outline: "none",
+                    color: "#222"
+                }}
+                disabled={loading}
+            />
             <button
                 onClick={handleCreateMeeting}
                 disabled={loading}
