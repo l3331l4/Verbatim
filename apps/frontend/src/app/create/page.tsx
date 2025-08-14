@@ -1,11 +1,13 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createMeeting } from "../../lib/api";
 
 export default function CreateMeetingPage() {
     const [meetingId, setMeetingId] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [title, setTitle] = useState<string>("");
+    const router = useRouter();
 
     const handleCreateMeeting = async () => {
         setLoading(true);
@@ -20,6 +22,12 @@ export default function CreateMeetingPage() {
         }
     };
 
+    const handleViewMeeting = () => {
+        if (meetingId) {
+            router.push(`/meeting/${meetingId}`);
+        }
+    };
+
     return (
         <div
             style={{
@@ -30,7 +38,7 @@ export default function CreateMeetingPage() {
                 alignItems: "center",
                 background: "#f9f9f9",
             }}>
-                <input
+            <input
                 type="text"
                 placeholder="Enter meeting title"
                 value={title}
@@ -64,8 +72,34 @@ export default function CreateMeetingPage() {
                 {loading ? "Creating..." : "Create Meeting"}
             </button>
             {meetingId && (
-                <div style={{ marginTop: 32, fontSize: "1.2rem", color: "#222" }}>
-                    <strong>Meeting ID:</strong> {meetingId}
+                <div style={{
+                    marginTop: 32,
+                    fontSize: "1.2rem",
+                    color: "#222",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center"
+                }}>
+                    <div>
+                        <strong>Meeting ID:</strong> {meetingId}
+                    </div>
+                    <button
+                        onClick={handleViewMeeting}
+                        style={{
+                            marginTop: "1rem",
+                            padding: "0.75rem 2rem",
+                            fontSize: "1.1rem",
+                            borderRadius: "1.5rem",
+                            border: "none",
+                            background: "#22c55e",
+                            color: "#fff",
+                            cursor: "pointer",
+                            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                            transition: "background 0.2s",
+                        }}
+                    >
+                        View Meeting
+                    </button>
                 </div>
             )}
         </div>
