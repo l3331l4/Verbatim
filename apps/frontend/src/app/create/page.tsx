@@ -22,7 +22,7 @@ export default function CreateMeetingPage() {
         }
     };
 
-    const handleViewMeeting = () => {
+    const handleJoinMeeting = () => {
         if (meetingId) {
             router.push(`/meeting/${meetingId}`);
         }
@@ -84,7 +84,7 @@ export default function CreateMeetingPage() {
                         <strong>Meeting ID:</strong> {meetingId}
                     </div>
                     <button
-                        onClick={handleViewMeeting}
+                        onClick={handleJoinMeeting}
                         style={{
                             marginTop: "1rem",
                             padding: "0.75rem 2rem",
@@ -98,7 +98,7 @@ export default function CreateMeetingPage() {
                             transition: "background 0.2s",
                         }}
                     >
-                        View Meeting
+                        Join Meeting
                     </button>
                 </div>
             )}
