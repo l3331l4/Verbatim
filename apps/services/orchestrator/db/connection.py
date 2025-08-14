@@ -9,7 +9,14 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-MONGODB_URI = os.getenv("MONGODB_URI", "your-mongodb-uri-here")
+MONGODB_URI = os.getenv("MONGODB_URI")
+if not MONGODB_URI:
+    raise ValueError("MONGODB_URI environment variable is not set")
+
+DB_NAME = os.getenv("DB_NAME")
+if not DB_NAME:
+    raise ValueError("DB_NAME environment variable is not set")
+
 client = MongoClient(MONGODB_URI, server_api=ServerApi('1'))
 
 def connect_to_mongodb():
@@ -20,6 +27,9 @@ def connect_to_mongodb():
     except Exception as e:
         logger.error(f"Could not connect to MongoDB: {e}")
         return None
+    
+def get_db():
+    return client[DB_NAME]
 
 if __name__ == "__main__":
     connect_to_mongodb()
