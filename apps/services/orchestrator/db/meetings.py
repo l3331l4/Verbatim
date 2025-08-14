@@ -15,7 +15,7 @@ def create_meeting(title=None):
     meeting_dict = meeting.model_dump()
     meeting_dict["meeting_id"] = str(meeting_dict["meeting_id"])
     result = meetings_collection.insert_one(meeting_dict)
-    return str(result.inserted_id)
+    return meeting_dict["meeting_id"]
 
 if __name__ == "__main__":
     meeting_id = create_meeting(title="Test Meeting")
