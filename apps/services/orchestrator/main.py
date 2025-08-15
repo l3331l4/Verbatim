@@ -1,3 +1,4 @@
+import json
 from fastapi import FastAPI, HTTPException, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from apps.services.orchestrator.db.meetings import create_meeting
@@ -41,6 +42,9 @@ async def websocket_meeting(websocket: WebSocket, meeting_id: str):
     try:
         while True:
             data = await websocket.receive_text()
+            msg = json.loads(data)
             print(f"Meeting {meeting_id} - Received: {data}")
+            if msg.get("type") == "ping":
+                await websocket.send_text(json.dumps({"type": "pong"}))
     except:
         print(f"Client disconnected from meeting {meeting_id}")
