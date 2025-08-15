@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from apps.services.orchestrator.db.meetings import create_meeting
 from apps.services.orchestrator.routes import health
@@ -32,3 +32,15 @@ def create_meeting_endpoint(meeting: MeetingCreateRequest):
         return {"meeting_id": meeting_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create meeting: {e}")
+    
+@app.websocket("/ws/meetings/{meeting_id}")
+async def websocket_meeting(websocket: WebSocket, meeting_id: str):
+    await websocket.accept()
+    print(f"Client connected to meeting {meeting_id}")
+
+    try:
+        while True:
+            data = await websocket.receive_text()
+            print(f"Meeting {meeting_id} - Received: {data}")
+    except:
+        print(f"Client disconnected from meeting {meeting_id}")
