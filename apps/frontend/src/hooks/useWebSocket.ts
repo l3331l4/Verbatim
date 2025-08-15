@@ -58,6 +58,9 @@ export function useWebSocket(meetingId: string) {
           pingTimestamp.current = null;
           if (pongTimeout.current) clearTimeout(pongTimeout.current);
         }
+        if (msg.type === "message") {
+          console.log(`Message from meeting ${meetingId}: ${msg.content}`);
+        }
       } catch {
         // ignore non-JSON messages
       }
