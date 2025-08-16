@@ -55,13 +55,21 @@ async def websocket_meeting(websocket: WebSocket, meeting_id: str):
 
     try:
         while True:
-            data = await websocket.receive_text()
-            msg = json.loads(data)
-            print(f"Meeting {meeting_id} - Received: {data}")
-            if msg.get("type") == "ping":
-                await websocket.send_text(json.dumps({"type": "pong"}))
-    except:
-        print(f"Client disconnected from meeting {meeting_id}")
+            message = await websocket.receive()
+            if message["type"] == "websocket.receive":
+                if "text" in message:
+                    data = message["text"]
+                    msg = json.loads(data)
+                    print(f"Meeting {meeting_id} - Received: {data}")
+                    if msg.get("type") == "ping":
+                        await websocket.send_text(json.dumps({"type": "pong"}))
+                elif "bytes" in message:
+                    binary_data = message["bytes"]
+                    print(
+                        f"Meeting {meeting_id} - Received binary data of length {len(binary_data)}")
+                    # Handle binary data here (e.g., save, process, forward, etc.)
+    except Exception as e:
+        print(f"Client disconnected from meeting {meeting_id}: {e}")
     finally:
         connections[meeting_id].remove(websocket)
         if len(connections[meeting_id]) == 0:

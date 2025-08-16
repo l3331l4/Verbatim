@@ -3,6 +3,7 @@ import { use } from "react";
 import { useWebSocket } from "@/hooks/useWebSocket";
 
 import MicrophoneButton from "@/components/MicrophoneButton";
+import AudioChunkRecorder from "@/components/AudioChunkRecorder";
 
 
 interface MeetingPageProps {
@@ -32,6 +33,9 @@ export default function MeetingPage({ params }: MeetingPageProps) {
             <br />
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                 <MicrophoneButton />
+                <br />
+                <AudioChunkRecorder  meetingId={id} />
+                <br />
                 <button
                     style={{
                         marginTop: "1rem",

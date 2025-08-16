@@ -86,5 +86,13 @@ export function useWebSocket(meetingId: string) {
     }
   };
 
-  return { status, sendMessage, latency };
+  const sendBinary = (data: ArrayBuffer) => {
+  if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+    wsRef.current.send(data);
+  } else {
+    console.warn("WebSocket not open for binary data");
+  }
+};
+
+  return { status, sendMessage, sendBinary, latency };
 }
