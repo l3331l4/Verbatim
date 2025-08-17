@@ -37,7 +37,7 @@ export default function GlowingMicButton({
 
       {/* Soft purple halo */}
       <div
-        className={`absolute inset-0 rounded-full scale-200 pointer-events-none opacity-55`}
+        className={`absolute inset-0 rounded-full scale-200 pointer-events-none opacity-45`}
         style={{
           background: 'radial-gradient(circle, rgba(160, 181, 253, 0.8) 0%, rgba(188, 197, 254, 0.6) 30%, rgba(188, 197, 254, 0.1) 50%, transparent 70%)'
         }}
