@@ -5,6 +5,10 @@ from apps.services.orchestrator.db.meetings import create_meeting
 from apps.services.orchestrator.routes import health
 from pydantic import BaseModel
 from typing import Optional
+from .asr_client import asr_client
+
+import logging
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -13,6 +17,8 @@ connections: dict[str, list[WebSocket]] = {}
 origins = [
     "http://localhost",
     "http://localhost:3000",
+    "http://localhost:8000",
+    "http://localhost:8001",
 ]
 
 app.add_middleware(
@@ -65,15 +71,22 @@ async def websocket_meeting(websocket: WebSocket, meeting_id: str):
                         await websocket.send_text(json.dumps({"type": "pong"}))
                 elif "bytes" in message:
                     binary_data = message["bytes"]
-                    print(
-                        f"Meeting {meeting_id} - Received binary data of length {len(binary_data)}")
-                    # Handle binary data here (e.g., save, process, forward, etc.)
+                    print(f"Meeting {meeting_id} - Received binary data of length {len(binary_data)}")
+                    success = await asr_client.send_audio(meeting_id, binary_data)
+                    if not success:
+                        logger.error(f"Failed to forward audio to ASR service for meeting {meeting_id}")
+                    
     except Exception as e:
         print(f"Client disconnected from meeting {meeting_id}: {e}")
     finally:
-        connections[meeting_id].remove(websocket)
-        if len(connections[meeting_id]) == 0:
-            del connections[meeting_id]
+        try:
+            connections[meeting_id].remove(websocket)
+            if len(connections[meeting_id]) == 0:
+                del connections[meeting_id]
+                await asr_client.disconnect_meeting(meeting_id)
+                logger.info(f"Cleaned up meeting {meeting_id}")
+        except Exception as e:
+            logger.error(f"Error cleaning up meeting {meeting_id}: {e}")
 
 
 @app.post("/meetings/{meeting_id}/test-message")

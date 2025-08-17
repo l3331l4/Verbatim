@@ -1,5 +1,6 @@
 # Python
 apps/services/orchestrator/venv/
+**/venv/
 __pycache__/
 *.pyc
 *.pyo
@@ -31,3 +32,6 @@ docker-compose.override.yml
 # MongoDB backups
 dump/
 *.bak
+
+# Transcripts
+**/transcripts/
