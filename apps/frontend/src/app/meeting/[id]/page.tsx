@@ -44,7 +44,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
     }, [lastMessage]);
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-200 via-gray-100 to-purple-100 p-6 relative">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-gray-100 to-purple-100 p-6 relative">
             {/* Glass Panel */}
             <div className="glass-card w-full max-w-7xl p-8">
                 {/* glass-card w-full max-w-7xl p-8 */}
@@ -62,7 +62,8 @@ export default function MeetingPage({ params }: MeetingPageProps) {
                             }`}
                     >
                         <span
-                            className={`h-2 w-2 rounded-full mr-2 ${status === "connected" ? "bg-green-500" : status === "connecting" ? "bg-yellow-500 animate-pulse" : "bg-red-500"
+                            className={`h-2 w-2 rounded-full mr-2 ${status === "connected" ? "bg-green-500" : status === "connecting" ?
+                                 "bg-yellow-500 animate-pulse" : "bg-red-500"
                                 }`}
                         />
                         {status === "connected" ? "Connected" : status === "connecting" ? (
@@ -126,7 +127,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 
                 {/* Controls */}
                 <div className="flex flex-col items-center space-y-6">
-                    <MicrophoneButton />
+                    {/* <MicrophoneButton /> */}
                     <AudioChunkRecorder meetingId={id} status={status} sendBinary={sendBinary} />
                     <button
                         onClick={() => sendMessage({ type: "ping" })}

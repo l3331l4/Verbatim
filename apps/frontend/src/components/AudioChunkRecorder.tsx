@@ -4,9 +4,9 @@ import GlowingMicButton from "./GlowingMicButton";
 
 
 interface AudioChunkRecorderProps {
-  meetingId: string;
-  status: "connecting" | "connected" | "disconnected";
-  sendBinary: (data: ArrayBuffer) => void;
+    meetingId: string;
+    status: "connecting" | "connected" | "disconnected";
+    sendBinary: (data: ArrayBuffer) => void;
 }
 
 export default function AudioChunkRecorder({ meetingId, status, sendBinary }: AudioChunkRecorderProps) {
@@ -97,34 +97,20 @@ export default function AudioChunkRecorder({ meetingId, status, sendBinary }: Au
     };
 
     return (
-        <div style={{ 
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        width: "100%"
-    }}>
-        <GlowingMicButton 
-                isRecording={isRecording} 
+        <div className="flex flex-col items-center w-full">
+            <div
+                className={`mt-4 text-[0.9rem] mb-2 text-gray-600 h-[1.2rem] transition-opacity duration-200 text-center w-full ${isRecording ? "opacity-100" : "opacity-0"
+                    }`}
+            >
+                {isRecording ? "Recording continuous audio..." : ""}
+            </div>
+
+            <GlowingMicButton
+                isRecording={isRecording}
                 onClick={toggleRecording}
                 size={90}
                 className="mb-4"
             />
-        
-
-        <div 
-            style={{ 
-                marginTop: "1rem", 
-                fontSize: "0.9rem", 
-                color: "#666",
-                height: "1.2rem", 
-                opacity: isRecording ? 1 : 0,  
-                transition: "opacity 0.2s",   
-                textAlign: "center",
-                width: "100%"
-            }}
-        >
-            {isRecording ? "Recording continuous audio..." : ""}
         </div>
-    </div>
     );
 }
