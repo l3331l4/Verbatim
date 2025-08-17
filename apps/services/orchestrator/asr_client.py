@@ -1,8 +1,10 @@
 import websockets
+import asyncio
 import logging
-from typing import Dict, Optional
+from typing import Dict
 
 logger = logging.getLogger(__name__)
+
 
 class ASRClient:
     def __init__(self, asr_service_url: str = "ws://localhost:8001"):
@@ -10,13 +12,12 @@ class ASRClient:
         self.connections: Dict[str, websockets.WebSocketClientProtocol] = {}
 
     async def connect_to_meeting(self, meeting_id: str) -> bool:
-        if meeting_id in self.connections:
+        if meeting_id in self.connections and not self.connections[meeting_id].closed:
             return True
         try:
             ws_url = f"{self.asr_service_url}/process/{meeting_id}"
-            connection = await websockets.connect(ws_url)
-            self.connections[meeting_id] = connection
-
+            self.connections[meeting_id] = await websockets.connect(ws_url)
+            asyncio.create_task(self.listen_for_messages(meeting_id))
             logger.info(f"Connected to ASR service for meeting {meeting_id}")
             return True
         except Exception as e:
@@ -25,26 +26,40 @@ class ASRClient:
             return False
 
     async def send_audio(self, meeting_id: str, audio_bytes: bytes) -> bool:
-        if meeting_id not in self.connections:
-            if not await self.connect_to_meeting(meeting_id):
-                return False
+        if meeting_id not in self.connections and not await self.connect_to_meeting(meeting_id):
+            return False
         try:
             await self.connections[meeting_id].send(audio_bytes)
             return True
         except Exception as e:
-            logger.error(f"Failed to send audio to ASR service: {e}")
-            if meeting_id in self.connections:
-                del self.connections[meeting_id]
+            await self.disconnect_meeting(meeting_id)
             return False
 
+    async def listen_for_messages(self, meeting_id: str):
+        from .main import connections
+        ws = self.connections.get(meeting_id)
+        if not ws:
+            return
+        try:
+            async for message in ws:
+                if meeting_id in connections:
+                    for client in list(connections[meeting_id]):
+                        try:
+                            await client.send_text(message)
+                        except Exception as e:
+                            logger.error(f"Forward error: {e}")
+        except Exception as e:
+            logger.error(f"Error in ASR message listener: {e}")
+        finally:
+            await self.disconnect_meeting(meeting_id)
+
     async def disconnect_meeting(self, meeting_id: str):
-        if meeting_id in self.connections:
+        ws = self.connections.pop(meeting_id, None)
+        if ws:
             try:
-                await self.connections[meeting_id].close()
+                await ws.close()
             except:
                 pass
-            del self.connections[meeting_id]
-            logger.info(
-                f"Disconnected from ASR service for meeting {meeting_id}")
+
 
 asr_client = ASRClient()

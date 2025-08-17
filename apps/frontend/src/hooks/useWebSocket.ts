@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 export function useWebSocket(meetingId: string) {
   const wsRef = useRef<WebSocket | null>(null);
   const [status, setStatus] = useState<"connecting" | "connected" | "disconnected">("connecting");
+  const [lastMessage, setLastMessage] = useState<string | null>(null);
 
   const [latency, setLatency] = useState<number | null>(null);
   const pingTimestamp = useRef<number | null>(null);
@@ -50,6 +51,8 @@ export function useWebSocket(meetingId: string) {
 
     ws.onmessage = (event) => {
       try {
+        console.log("WebSocket message received:", event.data);
+        setLastMessage(event.data);
         const msg = JSON.parse(event.data);
         if (msg.type === "pong" && pingTimestamp.current) {
           const rtt = Date.now() - pingTimestamp.current;
@@ -61,6 +64,7 @@ export function useWebSocket(meetingId: string) {
         if (msg.type === "message") {
           console.log(`Message from meeting ${meetingId}: ${msg.content}`);
         }
+      
       } catch {
         // ignore non-JSON messages
       }
@@ -94,5 +98,5 @@ export function useWebSocket(meetingId: string) {
   }
 };
 
-  return { status, sendMessage, sendBinary, latency };
+  return { status, sendMessage, sendBinary, latency, lastMessage };
 }

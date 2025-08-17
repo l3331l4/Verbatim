@@ -101,10 +101,12 @@ class WhisperProcessor:
                 print(f"Transcript [{now.strftime('%H:%M:%S')}]: {text}")
                 segment_texts.append(text)
 
+            combined_text = " ".join(segment_texts)
             return {
                 'segments_processed': len(segment_texts),
                 'audio_duration': len(audio_data) / 16000,
-                'language_confidence': info.language_probability
+                'language_confidence': info.language_probability,
+                'text': combined_text,
             }
 
         except Exception:
