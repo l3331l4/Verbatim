@@ -109,7 +109,7 @@ export default function AudioChunkRecorder({ meetingId, status, sendBinary }: Au
                 isRecording={isRecording}
                 onClick={toggleRecording}
                 size={90}
-                className="mb-4"
+                className="mb-0"
             />
         </div>
     );
