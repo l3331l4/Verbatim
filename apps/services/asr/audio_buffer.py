@@ -6,7 +6,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 class MeetingAudioBuffer:
-    """Enhanced audio buffer with better voice activity detection and overlap handling"""
 
     def __init__(self, meeting_id: str, phrase_timeout: float = 0.5, max_phrase_duration: float = 30.0):
         self.meeting_id = meeting_id
