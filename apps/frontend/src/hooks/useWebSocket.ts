@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 export function useWebSocket(meetingId: string) {
   const wsRef = useRef<WebSocket | null>(null);
@@ -9,6 +9,9 @@ export function useWebSocket(meetingId: string) {
   const pingTimestamp = useRef<number | null>(null);
   const pongTimeout = useRef<NodeJS.Timeout | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const reconnectAttemptsRef = useRef<number>(0);
+  const MAX_RECONNECT_ATTEMPTS = 10;
 
   const setPongTimeout = () => {
     if (pongTimeout.current) clearTimeout(pongTimeout.current);
@@ -28,25 +31,43 @@ export function useWebSocket(meetingId: string) {
     }
   };
 
-  useEffect(() => {
-    if (status !== "connected") return;
-    intervalRef.current = setInterval(sendPing, 30000);
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [status]);
+  const reconnect = useCallback(() => {
+    if (reconnectAttemptsRef.current >= MAX_RECONNECT_ATTEMPTS) {
+      console.warn("Maximum reconnection attempts reached");
+      return;
+    }
+    if (reconnectTimeoutRef.current) 
+      clearTimeout(reconnectTimeoutRef.current);
+    const backoffDelay = Math.min(
+      1000 * Math.pow(1.5, reconnectAttemptsRef.current), 
+      30000
+    );
+    console.log(`Attempting to reconnect in ${Math.round(backoffDelay/1000)}s...`);
+    reconnectTimeoutRef.current = setTimeout(() => {
+      reconnectAttemptsRef.current += 1;
+      initializeWebSocket();
+    }, backoffDelay);
+  }, []);
 
-  useEffect(() => {
+  const initializeWebSocket = useCallback(() => {
     if (!meetingId) return;
+
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+
     const baseUrl = process.env.NEXT_PUBLIC_WS_URL;
     if (!baseUrl) throw new Error("NEXT_PUBLIC_WS_URL not set");
 
+    setStatus("connecting");
     const ws = new WebSocket(`${baseUrl}/ws/meetings/${meetingId}`);
     wsRef.current = ws;
 
     ws.onopen = () => {
       setStatus("connected");
       sendPing();
+      reconnectAttemptsRef.current = 0;
     };
 
     ws.onmessage = (event) => {
@@ -64,22 +85,66 @@ export function useWebSocket(meetingId: string) {
         if (msg.type === "message") {
           console.log(`Message from meeting ${meetingId}: ${msg.content}`);
         }
-      
       } catch {
         // ignore non-JSON messages
       }
     };
 
-    ws.onclose = ws.onerror = () => {
+    ws.onclose = (event) => {
+      console.log(`WebSocket closed with code: ${event.code}`);
+      setStatus("disconnected");
+      clearAllTimers();
+      
+      // Only reconnect on unexpected closures
+      if (event.code !== 1000) {
+        reconnect();
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
       setStatus("disconnected");
       clearAllTimers();
     };
+  }, [meetingId, reconnect]);
+
+  useEffect(() => {
+    if (status !== "connected") return;
+    intervalRef.current = setInterval(sendPing, 30000);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [status]);
+
+  useEffect(() => {
+    initializeWebSocket();
+  
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && status === "disconnected") {
+        reconnectAttemptsRef.current = 0;
+        initializeWebSocket();
+      }
+    };
+
+    const handleOnline = () => {
+      if (status === "disconnected") {
+        reconnectAttemptsRef.current = 0; 
+        initializeWebSocket();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('online', handleOnline);
 
     return () => {
-      ws.close();
+      if (wsRef.current) {
+        wsRef.current.close(1000);
+      }
       clearAllTimers();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('online', handleOnline);
     };
-  }, [meetingId]);
+  }, [initializeWebSocket]);
 
   const sendMessage = (message: any) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -98,5 +163,5 @@ export function useWebSocket(meetingId: string) {
   }
 };
 
-  return { status, sendMessage, sendBinary, latency, lastMessage };
+  return { status, sendMessage, sendBinary, latency, lastMessage, reconnect: () => { reconnectAttemptsRef.current = 0; initializeWebSocket() } };
 }
