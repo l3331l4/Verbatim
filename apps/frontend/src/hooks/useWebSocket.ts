@@ -57,6 +57,8 @@ export function useWebSocket(meetingId: string) {
       wsRef.current = null;
     }
 
+    setStatus("connecting");
+
     const baseUrl = process.env.NEXT_PUBLIC_WS_URL;
     if (!baseUrl) throw new Error("NEXT_PUBLIC_WS_URL not set");
 

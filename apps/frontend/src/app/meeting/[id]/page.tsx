@@ -16,7 +16,7 @@ interface TranscriptMessage {
 }
 
 export default function MeetingPage({ params }: MeetingPageProps) {
-    
+
   const { id } = use(params);
   const { status, sendMessage, lastMessage } = useWebSocket(id);
   const [transcripts, setTranscripts] = useState<TranscriptMessage[]>([]);
@@ -57,15 +57,17 @@ export default function MeetingPage({ params }: MeetingPageProps) {
             className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
               status === "connected"
                 ? "bg-green-100 text-green-700"
+                : status === "connecting"
+                ? "bg-yellow-100 text-yellow-700"
                 : "bg-red-100 text-red-700"
             }`}
           >
             <span
               className={`h-2 w-2 rounded-full mr-2 ${
-                status === "connected" ? "bg-green-500" : "bg-red-500"
+                status === "connected" ? "bg-green-500" : status === "connecting" ? "bg-yellow-500 animate-pulse" : "bg-red-500"
               }`}
             />
-            {status === "connected" ? "Connected" : "Disconnected"}
+            {status === "connected" ? "Connected" : status === "connecting" ? "Connecting..." : "Disconnected"}
           </div>
         </div>
 
