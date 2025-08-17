@@ -18,7 +18,7 @@ interface TranscriptMessage {
 export default function MeetingPage({ params }: MeetingPageProps) {
 
     const { id } = use(params);
-    const { status, sendMessage, lastMessage } = useWebSocket(id);
+    const { status, sendMessage, lastMessage, sendBinary } = useWebSocket(id);
     const [transcripts, setTranscripts] = useState<TranscriptMessage[]>([]);
     const transcriptContainerRef = useRef<HTMLDivElement>(null);
 
@@ -127,7 +127,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
                 {/* Controls */}
                 <div className="flex flex-col items-center space-y-6">
                     <MicrophoneButton />
-                    <AudioChunkRecorder meetingId={id} />
+                    <AudioChunkRecorder meetingId={id} status={status} sendBinary={sendBinary} />
                     <button
                         onClick={() => sendMessage({ type: "ping" })}
                         disabled={status !== "connected"}

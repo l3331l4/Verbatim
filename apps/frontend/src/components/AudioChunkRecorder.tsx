@@ -1,14 +1,20 @@
 "use client";
 import { useRef, useState } from "react";
-import { useWebSocket } from "@/hooks/useWebSocket";
+import GlowingMicButton from "./GlowingMicButton";
 
-export default function AudioChunkRecorder({ meetingId }: { meetingId: string }) {
+
+interface AudioChunkRecorderProps {
+  meetingId: string;
+  status: "connecting" | "connected" | "disconnected";
+  sendBinary: (data: ArrayBuffer) => void;
+}
+
+export default function AudioChunkRecorder({ meetingId, status, sendBinary }: AudioChunkRecorderProps) {
     const [isRecording, setIsRecording] = useState(false);
     const audioContextRef = useRef<AudioContext | null>(null);
     const workletNodeRef = useRef<AudioWorkletNode | null>(null);
     const streamRef = useRef<MediaStream | null>(null);
     const isRecordingRef = useRef(false);
-    const { status, sendBinary } = useWebSocket(meetingId);
 
     const startRecording = async () => {
 
@@ -82,6 +88,14 @@ export default function AudioChunkRecorder({ meetingId }: { meetingId: string })
         console.log("Stopped recording");
     };
 
+    const toggleRecording = () => {
+        if (isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
+    };
+
     return (
         <div style={{ 
         display: "flex",
@@ -89,22 +103,13 @@ export default function AudioChunkRecorder({ meetingId }: { meetingId: string })
         alignItems: "center",
         width: "100%"
     }}>
-        <button
-            onClick={isRecording ? stopRecording : startRecording}
-            style={{
-                padding: "0.5rem 1rem",
-                fontSize: "1rem",
-                borderRadius: "1.5rem",
-                border: "none",
-                background: isRecording ? "#ef4444" : "#22c55e",
-                color: "#fff",
-                cursor: "pointer",
-                width: "150px", 
-                textAlign: "center"
-            }}
-        >
-            {isRecording ? "Stop Recording" : "Start Recording"}
-        </button>
+        <GlowingMicButton 
+                isRecording={isRecording} 
+                onClick={toggleRecording}
+                size={90}
+                className="mb-4"
+            />
+        
 
         <div 
             style={{ 
