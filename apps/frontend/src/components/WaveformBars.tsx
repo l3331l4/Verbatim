@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 interface WaveformBarsProps {
     active?: boolean;
@@ -6,6 +6,16 @@ interface WaveformBarsProps {
 }
 
 export default function WaveformBars({ active = false, className = "" }: WaveformBarsProps) {
+    const [wasActive, setWasActive] = useState(active);
+
+    useEffect(() => {
+    if (active) {
+      setWasActive(true);
+    } else if (wasActive) {
+      const timer = setTimeout(() => setWasActive(false), 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [active, wasActive]);
 
     const pattern = [0.5, 0.8, 1.1, 1.35, 1.6, 1.35, 1.1, 0.8, 0.5];
     const bars = [...pattern, ...pattern.slice(0, -1)];
@@ -15,8 +25,8 @@ export default function WaveformBars({ active = false, className = "" }: Wavefor
             <div className="wf">
                 {bars.map((max, i) => {
                     const styles = {
-                        "--min": active ? ".35" : ".4",
-                        "--max": active ? String(max) : String(Math.max(0.5, max * 0.7)),
+                        "--min": ".35",
+                        "--max": String(max),
                         "--dur": `${800 + (i % 7) * 70}ms`,
                         "--delay": `${i * 60}ms`,
                         "--entrance-delay": `${100 + i * 30}ms`,
@@ -25,7 +35,10 @@ export default function WaveformBars({ active = false, className = "" }: Wavefor
                     return (
                         <span
                             key={i}
-                            className={`wf-bar ${active ? "wf-bar-active" : ""}`}
+                            className={`wf-bar ${
+                                active ? "wf-bar-active" :
+                                wasActive ? "wf-bar-fading" : ""
+                            }`}
                             style={styles}
                         />
                     );

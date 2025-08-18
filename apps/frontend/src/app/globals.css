@@ -158,6 +158,17 @@
     }
   }
 
+  @keyframes wf-fade-shrink {
+    0% {
+      opacity: 1;
+      transform: scaleY(var(--max, 1));
+    }
+    100% {
+      opacity: 0;
+      transform: scaleY(0.2);
+    }
+  }
+
   .wf {
     display: flex;
     align-items: flex-end;
@@ -183,6 +194,10 @@
       wf-fade-in 0.3s ease-out forwards var(--entrance-delay, 0ms),
       wf var(--dur, 900ms) ease-in-out infinite;
     animation-delay: var(--entrance-delay, 0ms), calc(var(--entrance-delay, 0ms) + 0.3s);
+  }
+
+  .wf-bar-fading {
+    animation: wf-fade-shrink 1.2s ease forwards;
   }
 
   .wf-floor {

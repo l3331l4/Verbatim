@@ -113,8 +113,7 @@ export default function AudioChunkRecorder({ meetingId, status, sendBinary }: Au
                 className="mb-2"
             />
 
-            <div className={`flex flex-col items-center transition-opacity duration-200 ${isRecording ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-                {/* <span className="text-indigo-500/80 text-sm font-medium mb-2">Listening...</span> */}
+            <div className={`flex flex-col items-center transition-opacity duration-200 pointer-events-none"}`}>
                 <div className="relative z-10 h-12">
                     <WaveformBars active={isRecording} className="h-8" />
                 </div>
