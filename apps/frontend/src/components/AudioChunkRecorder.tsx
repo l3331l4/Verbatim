@@ -99,12 +99,12 @@ export default function AudioChunkRecorder({ meetingId, status, sendBinary }: Au
 
     return (
         <div className="flex flex-col items-center w-full">
-            <div
+            {/* <div
                 className={`mt-4 text-[0.9rem] mb-2 text-gray-600 h-[1.2rem] transition-opacity duration-200 text-center w-full ${isRecording ? "opacity-100" : "opacity-0"
                     }`}
             >
                 {isRecording ? "Recording continuous audio..." : ""}
-            </div>
+            </div> */}
 
             <GlowingMicButton
                 isRecording={isRecording}

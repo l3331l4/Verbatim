@@ -49,7 +49,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
          }}
         >
             {/* Glass Panel */}
-            <div className="glass-card w-full max-w-7xl p-8">
+            <div className="glass-card w-full max-w-7xl px-8 pt-8 pb-0">
                 {/* glass-card w-full max-w-7xl p-8 */}
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
@@ -132,7 +132,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
                 <div className="flex flex-col items-center space-y-6">
                     {/* <MicrophoneButton /> */}
                     <AudioChunkRecorder meetingId={id} status={status} sendBinary={sendBinary} />
-                    <button
+                    {/* <button
                         onClick={() => sendMessage({ type: "ping" })}
                         disabled={status !== "connected"}
                         className={`px-8 py-3 rounded-full text-white text-lg shadow-md transition ${status === "connected"
@@ -141,7 +141,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
                             }`}
                     >
                         Send Ping
-                    </button>
+                    </button> */}
                 </div>
             </div>
         </div>
