@@ -54,15 +54,20 @@ async def websocket_meeting(websocket: WebSocket, meeting_id: str):
     await websocket.accept()
     print(f"Client connected to meeting {meeting_id}")
 
-    if meeting_id not in connections:
+    first_client = meeting_id not in connections
+    if first_client:
         connections[meeting_id] = []
-    connections[meeting_id].append(websocket)
-
-    if meeting_id not in asr_client.connections:
         success = await asr_client.connect_to_meeting(meeting_id)
         if not success:
             await websocket.close(code=1011, reason="Failed to connect to ASR service")
             return
+    connections[meeting_id].append(websocket)
+
+    await websocket.send_text(json.dumps({
+        "type": "connection_status",
+        "status": "connected",
+        "canRecord": first_client
+    }))
 
     try:
         while True:
@@ -74,7 +79,13 @@ async def websocket_meeting(websocket: WebSocket, meeting_id: str):
                 if msg.get("type") == "ping":
                     await websocket.send_text(json.dumps({"type": "pong"}))
             elif "bytes" in message:
-                await asr_client.send_audio(meeting_id, message["bytes"])
+                if first_client:
+                    await asr_client.send_audio(meeting_id, message["bytes"])
+                else:
+                    await websocket.send_text(json.dumps({
+                        "type": "error",
+                        "message": "Only the first participant can record audio"
+                    }))
 
     except WebSocketDisconnect:
         print(f"Client disconnected from meeting {meeting_id}")
