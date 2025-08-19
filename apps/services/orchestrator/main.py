@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from apps.services.orchestrator.db.meetings import create_meeting
 from apps.services.orchestrator.routes import health
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Dict
 from .asr_client import asr_client
 
 import logging
@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 connections: dict[str, list[WebSocket]] = {}
+recording_clients: Dict[str, WebSocket] = {}
 
 origins = [
     "http://localhost",
@@ -49,24 +50,44 @@ def create_meeting_endpoint(meeting: MeetingCreateRequest):
             status_code=500, detail=f"Failed to create meeting: {e}")
 
 
+async def broadcast_to_meeting(meeting_id: str, message: dict):
+    if meeting_id not in connections:
+        return
+
+    for ws in connections[meeting_id]:
+        try:
+            await ws.send_text(json.dumps(message))
+        except Exception as e:
+            logger.error(f"Error broadcasting to client: {e}")
+
+
 @app.websocket("/ws/meetings/{meeting_id}")
 async def websocket_meeting(websocket: WebSocket, meeting_id: str):
     await websocket.accept()
     print(f"Client connected to meeting {meeting_id}")
+    print(f"connections: {connections}")
 
     first_client = meeting_id not in connections
+    can_record = False
     if first_client:
         connections[meeting_id] = []
         success = await asr_client.connect_to_meeting(meeting_id)
         if not success:
             await websocket.close(code=1011, reason="Failed to connect to ASR service")
             return
+        recording_clients[meeting_id] = websocket
+        can_record = True
+    elif meeting_id not in recording_clients or recording_clients[meeting_id] is None:
+        recording_clients[meeting_id] = websocket
+        can_record = True
+
     connections[meeting_id].append(websocket)
 
+    print(f"connections now: {connections}")
     await websocket.send_text(json.dumps({
         "type": "connection_status",
         "status": "connected",
-        "canRecord": first_client
+        "canRecord": can_record,
     }))
 
     try:
@@ -79,12 +100,12 @@ async def websocket_meeting(websocket: WebSocket, meeting_id: str):
                 if msg.get("type") == "ping":
                     await websocket.send_text(json.dumps({"type": "pong"}))
             elif "bytes" in message:
-                if first_client:
+                if meeting_id in recording_clients and websocket == recording_clients[meeting_id]:
                     await asr_client.send_audio(meeting_id, message["bytes"])
                 else:
                     await websocket.send_text(json.dumps({
                         "type": "error",
-                        "message": "Only the first participant can record audio"
+                        "message": "Only the meeting host can record audio"
                     }))
 
     except WebSocketDisconnect:
@@ -94,8 +115,30 @@ async def websocket_meeting(websocket: WebSocket, meeting_id: str):
     finally:
         if meeting_id in connections and websocket in connections[meeting_id]:
             connections[meeting_id].remove(websocket)
+            was_recording = meeting_id in recording_clients and recording_clients[meeting_id] == websocket
+
+            if was_recording and connections[meeting_id]:
+                recording_clients[meeting_id] = connections[meeting_id][0]
+                try:
+                    await recording_clients[meeting_id].send_text(json.dumps({
+                        "type": "connection_status",
+                        "status": "connected",
+                        "canRecord": True
+                    }))
+                    await broadcast_to_meeting(meeting_id, {
+                        "type": "recording_client_changed",
+                        "message": "A new recording client has been assigned"
+                    })
+                except Exception as e:
+                    logger.error(f"Error notifying new recording client: {e}")
+
+            elif was_recording:
+                recording_clients.pop(meeting_id, None)
+                
             if not connections[meeting_id]:
                 del connections[meeting_id]
+                if meeting_id in recording_clients:
+                    recording_clients.pop(meeting_id)
                 await asr_client.disconnect_meeting(meeting_id)
 
 

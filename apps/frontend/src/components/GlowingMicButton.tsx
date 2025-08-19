@@ -7,13 +7,15 @@ interface GlowingMicButtonProps {
   onClick?: () => void;
   size?: number;
   className?: string;
+  disabled?: boolean;
 }
 
 export default function GlowingMicButton({
   isRecording = false,
   onClick,
   size = 80,
-  className = ""
+  className = "",
+  disabled = false
 }: GlowingMicButtonProps) {
   return (
     <div
@@ -21,7 +23,7 @@ export default function GlowingMicButton({
         ${isRecording ? "scale-100" : ""}
         ${className}`}
       style={{ width: size, height: size }}
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
     >
 
       {/* Lower blue glow */}

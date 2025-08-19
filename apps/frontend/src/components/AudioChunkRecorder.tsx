@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import GlowingMicButton from "./GlowingMicButton";
 import WaveformBars from "./WaveformBars";
 
@@ -8,9 +8,10 @@ interface AudioChunkRecorderProps {
     meetingId: string;
     status: "connecting" | "connected" | "disconnected";
     sendBinary: (data: ArrayBuffer) => void;
+    canRecord?: boolean;
 }
 
-export default function AudioChunkRecorder({ meetingId, status, sendBinary }: AudioChunkRecorderProps) {
+export default function AudioChunkRecorder({ meetingId, status, sendBinary, canRecord = true }: AudioChunkRecorderProps) {
     const [isRecording, setIsRecording] = useState(false);
     const audioContextRef = useRef<AudioContext | null>(null);
     const workletNodeRef = useRef<AudioWorkletNode | null>(null);
@@ -111,6 +112,7 @@ export default function AudioChunkRecorder({ meetingId, status, sendBinary }: Au
                 onClick={toggleRecording}
                 size={90}
                 className="mb-2"
+                disabled={!canRecord}
             />
 
             <div className={`flex flex-col items-center transition-opacity duration-200 pointer-events-none"}`}>

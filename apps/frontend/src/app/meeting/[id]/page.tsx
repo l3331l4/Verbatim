@@ -20,12 +20,18 @@ export default function MeetingPage({ params }: MeetingPageProps) {
     const { id } = use(params);
     const { status, sendMessage, lastMessage, sendBinary } = useWebSocket(id);
     const [transcripts, setTranscripts] = useState<TranscriptMessage[]>([]);
+    const [canRecord, setCanRecord] = useState<boolean>(false);
     const transcriptContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (lastMessage) {
             try {
                 const data = JSON.parse(lastMessage);
+
+                if (data.type === "connection_status" && data.canRecord !== undefined) {
+                    setCanRecord(data.canRecord);
+                }
+                
                 if (data.text) {
                     const timestamp = new Date().toLocaleTimeString();
                     setTranscripts((prev) => [...prev, { text: data.text, timestamp }]);
@@ -131,7 +137,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
                 {/* Controls */}
                 <div className="flex flex-col items-center space-y-6">
                     {/* <MicrophoneButton /> */}
-                    <AudioChunkRecorder meetingId={id} status={status} sendBinary={sendBinary} />
+                    <AudioChunkRecorder meetingId={id} status={status} sendBinary={sendBinary} canRecord={canRecord}/>
                     {/* <button
                         onClick={() => sendMessage({ type: "ping" })}
                         disabled={status !== "connected"}
