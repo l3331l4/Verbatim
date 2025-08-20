@@ -18,19 +18,14 @@ interface TranscriptMessage {
 export default function MeetingPage({ params }: MeetingPageProps) {
 
     const { id } = use(params);
-    const { status, sendMessage, lastMessage, sendBinary } = useWebSocket(id);
+    const { status, sendMessage, lastMessage, sendBinary, canRecord } = useWebSocket(id);
     const [transcripts, setTranscripts] = useState<TranscriptMessage[]>([]);
-    const [canRecord, setCanRecord] = useState<boolean>(false);
     const transcriptContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (lastMessage) {
             try {
                 const data = JSON.parse(lastMessage);
-
-                if (data.type === "connection_status" && data.canRecord !== undefined) {
-                    setCanRecord(data.canRecord);
-                }
                 
                 if (data.text) {
                     const timestamp = new Date().toLocaleTimeString();
@@ -48,6 +43,15 @@ export default function MeetingPage({ params }: MeetingPageProps) {
             }
         }
     }, [lastMessage]);
+
+    // useEffect(() => {
+    //     if (status === "connected") {
+    //         const storedClientId = sessionStorage.getItem(`client_id_${id}`);
+    //         if (storedClientId) {
+    //             sendMessage({ type: "identify", clientId: storedClientId });
+    //         }
+    //     }
+    // }, [status, id, sendMessage]);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-gray-100 to-purple-100 p-6 relative"
