@@ -1,18 +1,28 @@
 import json
+import uuid
+import asyncio
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from apps.services.orchestrator.db.meetings import create_meeting
 from apps.services.orchestrator.routes import health
 from pydantic import BaseModel
-from typing import Optional, Dict
+from typing import NamedTuple, Optional, Dict
 from .asr_client import asr_client
 
 import logging
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
-connections: dict[str, list[WebSocket]] = {}
-recording_clients: Dict[str, WebSocket] = {}
+
+
+class ClientInfo(NamedTuple):
+    websocket: WebSocket
+    client_id: str
+
+
+connections: dict[str, dict[str, ClientInfo]] = {}
+recording_clients: Dict[str, str] = {}
+host_clients: Dict[str, str] = {}
 
 origins = [
     "http://localhost",
@@ -50,45 +60,106 @@ def create_meeting_endpoint(meeting: MeetingCreateRequest):
             status_code=500, detail=f"Failed to create meeting: {e}")
 
 
+async def broadcast_client_list(meeting_id: str):
+    if meeting_id not in connections:
+        return
+    clients = []
+    recording_client_id = recording_clients.get(meeting_id)
+
+    for client_id, client_info in connections[meeting_id].items():
+        clients.append({
+            "clientId": client_id,
+            "isRecording": client_id == recording_client_id
+        })
+
+    message = {
+        "type": "client_list",
+        "clients": clients,
+        "count": len(clients),
+    }
+
+    for client_info in connections[meeting_id].values():
+        try:
+            await broadcast_to_meeting(meeting_id, message)
+        except Exception as e:
+            logger.error(f"Error broadcasting client list: {e}")
+
+
 async def broadcast_to_meeting(meeting_id: str, message: dict):
     if meeting_id not in connections:
         return
 
-    for ws in connections[meeting_id]:
+    for client_info in connections[meeting_id].values():
         try:
-            await ws.send_text(json.dumps(message))
+            await client_info.websocket.send_text(json.dumps(message))
         except Exception as e:
             logger.error(f"Error broadcasting to client: {e}")
+
+
+async def forward_asr_text(meeting_id: str, message: str):
+    if meeting_id not in connections:
+        return
+    for client_info in list(connections[meeting_id].values()):
+        try:
+            await client_info.websocket.send_text(message)
+        except Exception as e:
+            logger.error(f"Error forwarding ASR text: {e}")
+
+
+@app.on_event("startup")
+async def _init_asr_callback():
+    asr_client.set_broadcast_callback(forward_asr_text)
 
 
 @app.websocket("/ws/meetings/{meeting_id}")
 async def websocket_meeting(websocket: WebSocket, meeting_id: str):
     await websocket.accept()
-    print(f"Client connected to meeting {meeting_id}")
-    print(f"connections: {connections}")
+
+    try:
+        identify_msg = await asyncio.wait_for(websocket.receive_text(), timeout=2)
+        msg = json.loads(identify_msg)
+        if msg.get("type") == "identify" and "clientId" in msg:
+            client_id = msg["clientId"]
+            print(
+                f"Client {client_id} reconnected to meeting {meeting_id} (identify)")
+        else:
+            client_id = str(uuid.uuid4())[:8]
+    except Exception:
+        client_id = str(uuid.uuid4())[:8]
+
+    print(f"Client {client_id} connected to meeting {meeting_id}")
 
     first_client = meeting_id not in connections
-    can_record = False
     if first_client:
-        connections[meeting_id] = []
+        connections[meeting_id] = {}
         success = await asr_client.connect_to_meeting(meeting_id)
         if not success:
             await websocket.close(code=1011, reason="Failed to connect to ASR service")
             return
-        recording_clients[meeting_id] = websocket
-        can_record = True
-    elif meeting_id not in recording_clients or recording_clients[meeting_id] is None:
-        recording_clients[meeting_id] = websocket
+        recording_clients[meeting_id] = client_id
+        host_clients[meeting_id] = client_id
+    else:
+        if host_clients.get(meeting_id) == client_id:
+            recording_clients[meeting_id] = client_id
+
+    connections[meeting_id][client_id] = ClientInfo(websocket, client_id)
+
+    can_record = host_clients.get(meeting_id) == client_id
+    if not recording_clients.get(meeting_id):
+        recording_clients[meeting_id] = client_id
         can_record = True
 
-    connections[meeting_id].append(websocket)
+    print(
+        f"Meeting {meeting_id} now has {len(connections[meeting_id])} clients")
 
-    print(f"connections now: {connections}")
     await websocket.send_text(json.dumps({
         "type": "connection_status",
         "status": "connected",
         "canRecord": can_record,
+        "clientId": client_id,
     }))
+
+    await broadcast_client_list(meeting_id)
 
     try:
         while True:
@@ -100,46 +171,31 @@ async def websocket_meeting(websocket: WebSocket, meeting_id: str):
                 if msg.get("type") == "ping":
                     await websocket.send_text(json.dumps({"type": "pong"}))
             elif "bytes" in message:
-                if meeting_id in recording_clients and websocket == recording_clients[meeting_id]:
+                host_id = host_clients.get(meeting_id)
+                if host_id == client_id:
                     await asr_client.send_audio(meeting_id, message["bytes"])
                 else:
                     await websocket.send_text(json.dumps({
                         "type": "error",
-                        "message": "Only the meeting host can record audio"
+                        "message": "Only the host can record audio"
                     }))
 
     except WebSocketDisconnect:
-        print(f"Client disconnected from meeting {meeting_id}")
+        print(f"Client {client_id} disconnected from meeting {meeting_id}")
     except Exception as e:
-        print(f"WebSocket error: {e}")
+        print(f"WebSocket error for client {client_id}: {e}")
     finally:
-        if meeting_id in connections and websocket in connections[meeting_id]:
-            connections[meeting_id].remove(websocket)
-            was_recording = meeting_id in recording_clients and recording_clients[meeting_id] == websocket
-
-            if was_recording and connections[meeting_id]:
-                recording_clients[meeting_id] = connections[meeting_id][0]
-                try:
-                    await recording_clients[meeting_id].send_text(json.dumps({
-                        "type": "connection_status",
-                        "status": "connected",
-                        "canRecord": True
-                    }))
-                    await broadcast_to_meeting(meeting_id, {
-                        "type": "recording_client_changed",
-                        "message": "A new recording client has been assigned"
-                    })
-                except Exception as e:
-                    logger.error(f"Error notifying new recording client: {e}")
-
-            elif was_recording:
-                recording_clients.pop(meeting_id, None)
-                
+        if meeting_id in connections and client_id in connections[meeting_id]:
+            del connections[meeting_id][client_id]
             if not connections[meeting_id]:
                 del connections[meeting_id]
                 if meeting_id in recording_clients:
                     recording_clients.pop(meeting_id)
+                if meeting_id in host_clients:
+                    host_clients.pop(meeting_id)
                 await asr_client.disconnect_meeting(meeting_id)
+            else:
+                await broadcast_client_list(meeting_id)
 
 
 @app.post("/meetings/{meeting_id}/test-message")
@@ -150,12 +206,7 @@ async def test_message(meeting_id: str, body: TestMessageRequest):
 
     message = {"type": "message", "content": body.content}
 
-    for ws in connections[meeting_id]:
-        try:
-            await ws.send_text(json.dumps(message))
-        except Exception as e:
-            print(f"Error sending to client: {e}")
-
+    await broadcast_to_meeting(meeting_id, message)
     return {"status": "ok", "sent_to": len(connections[meeting_id])}
 
 

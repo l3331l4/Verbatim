@@ -1,15 +1,26 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 
+interface Client {
+  clientId: string;
+  isRecording: boolean;
+}
+
 export function useWebSocket(meetingId: string) {
   const wsRef = useRef<WebSocket | null>(null);
   const [status, setStatus] = useState<"connecting" | "connected" | "disconnected">("connecting");
   const [lastMessage, setLastMessage] = useState<string | null>(null);
   const [canRecord, setCanRecord] = useState(false);
 
+  const [clientId, setClientId] = useState<string | null>(null);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [clientCount, setClientCount] = useState<number>(0);
+
   const [latency, setLatency] = useState<number | null>(null);
+
   const pingTimestamp = useRef<number | null>(null);
   const pongTimeout = useRef<NodeJS.Timeout | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttemptsRef = useRef<number>(0);
   const MAX_RECONNECT_ATTEMPTS = 10;
@@ -66,6 +77,12 @@ export function useWebSocket(meetingId: string) {
     }, backoffDelay);
   }, []);
 
+  useEffect(() => {
+    if (clientId && canRecord) {
+      sessionStorage.setItem(`host_client_id_${meetingId}`, clientId);
+    }
+  }, [clientId, canRecord, meetingId]);
+
   const initializeWebSocket = useCallback(() => {
     if (!meetingId){
       return;
@@ -104,6 +121,10 @@ export function useWebSocket(meetingId: string) {
     ws.onopen = () => {
       if (!isCleaningUpRef.current) {
         setStatus("connecting"); // transport open, waiting for app handshake
+        const storedHostId = sessionStorage.getItem(`host_client_id_${meetingId}`);
+        if (storedHostId) {
+          ws.send(JSON.stringify({ type: "identify", clientId: storedHostId }));
+        }
         sendPing();
         reconnectAttemptsRef.current = 0;
       }
@@ -128,7 +149,12 @@ export function useWebSocket(meetingId: string) {
         if (msg.type === "connection_status") {
           setStatus(msg.status);   // "connected" once backend confirms
           setCanRecord(msg.canRecord);
-          return;
+          if (msg.clientId) setClientId(msg.clientId);
+        }
+
+        if (msg.type === "client_list") {
+          setClients(msg.clients || []);
+          setClientCount(msg.count || 0);
         }
               
         if (msg.type === "message") {
@@ -259,6 +285,9 @@ export function useWebSocket(meetingId: string) {
     latency, 
     lastMessage, 
     canRecord,
+    clientId,
+    clients,
+    clientCount,
     reconnect: manualReconnect 
   };
 }

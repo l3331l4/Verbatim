@@ -1,15 +1,21 @@
 import websockets
 import asyncio
 import logging
-from typing import Dict
+from typing import Dict, Optional, Callable, Awaitable
 
 logger = logging.getLogger(__name__)
+
+BroadcastCallback = Callable[[str, str], Awaitable[None]]
 
 
 class ASRClient:
     def __init__(self, asr_service_url: str = "ws://localhost:8001"):
         self.asr_service_url = asr_service_url
         self.connections: Dict[str, websockets.WebSocketClientProtocol] = {}
+        self._broadcast_callback: Optional[BroadcastCallback] = None
+
+    def set_broadcast_callback(self, cb: BroadcastCallback):
+        self._broadcast_callback = cb
 
     async def connect_to_meeting(self, meeting_id: str) -> bool:
         if meeting_id in self.connections and not self.connections[meeting_id].closed:
@@ -36,18 +42,13 @@ class ASRClient:
             return False
 
     async def listen_for_messages(self, meeting_id: str):
-        from .main import connections
         ws = self.connections.get(meeting_id)
         if not ws:
             return
         try:
             async for message in ws:
-                if meeting_id in connections:
-                    for client in list(connections[meeting_id]):
-                        try:
-                            await client.send_text(message)
-                        except Exception as e:
-                            logger.error(f"Forward error: {e}")
+                if self._broadcast_callback:
+                    await self._broadcast_callback(meeting_id, message)
         except Exception as e:
             logger.error(f"Error in ASR message listener: {e}")
         finally:

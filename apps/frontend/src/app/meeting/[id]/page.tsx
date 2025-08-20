@@ -1,6 +1,7 @@
 "use client";
 import { use, useState, useEffect, useRef } from "react";
 import { useWebSocket } from "@/hooks/useWebSocket";
+import ClientAvatars from "@/components/ClientAvatars";
 
 import MicrophoneButton from "@/components/MicrophoneButton";
 import AudioChunkRecorder from "@/components/AudioChunkRecorder";
@@ -18,7 +19,7 @@ interface TranscriptMessage {
 export default function MeetingPage({ params }: MeetingPageProps) {
 
     const { id } = use(params);
-    const { status, sendMessage, lastMessage, sendBinary, canRecord } = useWebSocket(id);
+    const { status, sendMessage, lastMessage, sendBinary, canRecord, clientId, clients } = useWebSocket(id);
     const [transcripts, setTranscripts] = useState<TranscriptMessage[]>([]);
     const transcriptContainerRef = useRef<HTMLDivElement>(null);
 
@@ -26,7 +27,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
         if (lastMessage) {
             try {
                 const data = JSON.parse(lastMessage);
-                
+
                 if (data.text) {
                     const timestamp = new Date().toLocaleTimeString();
                     setTranscripts((prev) => [...prev, { text: data.text, timestamp }]);
@@ -55,8 +56,8 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-gray-100 to-purple-100 p-6 relative"
-        style={{ 
-         }}
+            style={{
+            }}
         >
             {/* Glass Panel */}
             <div className="glass-card w-full max-w-7xl px-8 pt-8 pb-0">
@@ -66,22 +67,28 @@ export default function MeetingPage({ params }: MeetingPageProps) {
                     <h1 className="text-2xl font-semibold text-gray-800">
                         Meeting: {id}
                     </h1>
-                    <div
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${status === "connected"
+
+                    <div className="flex items-center space-x-4">
+                        {/* Client avatars display */}
+                        <ClientAvatars clients={clients} currentClientId={clientId} />
+
+                        <div
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${status === "connected"
                                 ? "bg-green-100 text-green-700"
                                 : status === "connecting"
                                     ? "bg-yellow-100 text-yellow-700"
                                     : "bg-red-100 text-red-700"
-                            }`}
-                    >
-                        <span
-                            className={`h-2 w-2 rounded-full mr-2 ${status === "connected" ? "bg-green-500" : status === "connecting" ?
-                                 "bg-yellow-500 animate-pulse" : "bg-red-500"
                                 }`}
-                        />
-                        {status === "connected" ? "Connected" : status === "connecting" ? (
-                            <span>Connecting<span className="loading-ellipsis"></span></span>
-                        ) : "Disconnected"}
+                        >
+                            <span
+                                className={`h-2 w-2 rounded-full mr-2 ${status === "connected" ? "bg-green-500" : status === "connecting" ?
+                                    "bg-yellow-500 animate-pulse" : "bg-red-500"
+                                    }`}
+                            />
+                            {status === "connected" ? "Connected" : status === "connecting" ? (
+                                <span>Connecting<span className="loading-ellipsis"></span></span>
+                            ) : "Disconnected"}
+                        </div>
                     </div>
                 </div>
 
