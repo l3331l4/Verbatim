@@ -2,6 +2,7 @@ import websockets
 import asyncio
 import logging
 from typing import Dict, Optional, Callable, Awaitable
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -9,7 +10,11 @@ BroadcastCallback = Callable[[str, str], Awaitable[None]]
 
 
 class ASRClient:
-    def __init__(self, asr_service_url: str = "ws://localhost:8001"):
+    def __init__(self, asr_service_url: str = None):
+        if asr_service_url is None:
+            asr_service_url = os.environ.get("ASR_SERVICE_URL")
+        if not asr_service_url:
+            raise ValueError("ASR_SERVICE_URL environment variable is not set")
         self.asr_service_url = asr_service_url
         self.connections: Dict[str, websockets.WebSocketClientProtocol] = {}
         self._broadcast_callback: Optional[BroadcastCallback] = None
