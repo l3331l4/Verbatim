@@ -22,6 +22,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
     const { status, sendMessage, lastMessage, sendBinary, canRecord, clientId, clients } = useWebSocket(id);
     const [transcripts, setTranscripts] = useState<TranscriptMessage[]>([]);
     const transcriptContainerRef = useRef<HTMLDivElement>(null);
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         if (lastMessage) {
@@ -45,14 +46,13 @@ export default function MeetingPage({ params }: MeetingPageProps) {
         }
     }, [lastMessage]);
 
-    // useEffect(() => {
-    //     if (status === "connected") {
-    //         const storedClientId = sessionStorage.getItem(`client_id_${id}`);
-    //         if (storedClientId) {
-    //             sendMessage({ type: "identify", clientId: storedClientId });
-    //         }
-    //     }
-    // }, [status, id, sendMessage]);
+    const handleCopyTranscript = () => {
+        const text = transcripts.map(t => `[${t.timestamp}] ${t.text}`).join("\n");
+        navigator.clipboard.writeText(text).then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1500);
+        });
+    };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-gray-100 to-purple-100 p-6 relative"
@@ -141,6 +141,26 @@ export default function MeetingPage({ params }: MeetingPageProps) {
                          hover:bg-gray-50 transition"
                         >
                             Clear Transcript
+                        </button>
+                    </div>
+                )}
+
+                {transcripts.length > 0 && (
+                    <div className="flex justify-center mb-4">
+                        <button
+                            onClick={handleCopyTranscript}
+                            className="glass-card-less-depth text-white rounded px-4 py-2 transition-all duration-200 opacity-70 hover:opacity-60"
+                            style={{
+                                background: "linear-gradient(135deg, #5D81E3 0%, #c4b5fd 100%)",
+                                border: "none",
+                                borderRadius: "1rem",
+                                padding: "0.5rem 1rem",
+                                cursor: "pointer",
+                                boxShadow: "0 4px 12px rgba(139, 92, 246, 0.3)",
+                                transition: "all 0.2s ease",
+                            }}
+                        >
+                            {copied ? "Copied!" : "Copy Transcript"}
                         </button>
                     </div>
                 )}
