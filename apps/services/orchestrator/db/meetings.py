@@ -5,7 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../.
 from apps.services.orchestrator.db.connection import get_db
 from apps.services.orchestrator.models.meeting import Meeting
 
-def create_meeting(title=None):
+def create_meeting(title):
     meeting = Meeting(
         title=title,
         status="active"
