@@ -7,9 +7,15 @@ export default function CreateMeetingPage() {
     const [meetingId, setMeetingId] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [title, setTitle] = useState<string>("");
+    const [error, setError] = useState<string | null>(null);
     const router = useRouter();
 
     const handleCreateMeeting = async () => {
+        if (title.trim() === "") {
+            setError("Meeting title is required.");
+            return;
+        }
+        setError(null);
         setLoading(true);
         setMeetingId(null);
         try {
@@ -42,7 +48,10 @@ export default function CreateMeetingPage() {
                 type="text"
                 placeholder="Enter meeting title"
                 value={title}
-                onChange={e => setTitle(e.target.value)}
+                onChange={e => {
+                    setTitle(e.target.value)
+                    setError(null);
+                }}
                 style={{
                     padding: "0.75rem 1.5rem",
                     fontSize: "1.2rem",
@@ -55,6 +64,9 @@ export default function CreateMeetingPage() {
                 }}
                 disabled={loading}
             />
+            {error && (
+                <div style={{ color: "#ef4444", marginBottom: "1rem" }}>{error}</div>
+            )}
             <button
                 onClick={handleCreateMeeting}
                 disabled={loading}
