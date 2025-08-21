@@ -82,7 +82,7 @@
 }
 
 .gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-violet-400;
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-indigo-400;
 }
 
 .hero-glow {
@@ -177,7 +177,7 @@
         rgba(255, 255, 255, 0.3));
   }
 
-  .glass-card-blurred { 
+  .glass-card-blurred {
     background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
@@ -319,7 +319,7 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(63.481% 0.14855 268.484);
+  --primary: oklch(66.313% 0.16212 290.306);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -387,5 +387,7 @@
 
   body {
     @apply bg-background text-foreground;
+    background-color: #FFFAFA;
+
   }
 }

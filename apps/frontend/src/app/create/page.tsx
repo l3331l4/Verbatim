@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createMeeting } from "../../lib/api";
+import Spline from "@splinetool/react-spline";
 
 export default function CreateMeetingPage() {
     const [meetingId, setMeetingId] = useState<string | null>(null);
@@ -12,7 +13,7 @@ export default function CreateMeetingPage() {
 
     const handleCreateMeeting = async () => {
         if (title.trim() === "") {
-            setError("Meeting title is required.");
+            setError("Meeting title is required!");
             return;
         }
         setError(null);
@@ -30,90 +31,79 @@ export default function CreateMeetingPage() {
 
     const handleJoinMeeting = () => {
         if (meetingId) {
-            router.push(`/meeting/${meetingId}`);
+            localStorage.setItem("lastCreatedMeetingId", meetingId);
+            
+            // Use setTimeout to allow time for state to be saved
+            // and ensure clean navigation
+            setTimeout(() => {
+                router.push(`/meeting/${meetingId}`);
+            }, 50);
         }
     };
 
     return (
-        <div
-            style={{
-                minHeight: "100vh",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                background: "#f9f9f9",
-            }}>
-            <input
-                type="text"
-                placeholder="Enter meeting title"
-                value={title}
-                onChange={e => {
-                    setTitle(e.target.value)
-                    setError(null);
-                }}
-                style={{
-                    padding: "0.75rem 1.5rem",
-                    fontSize: "1.2rem",
-                    borderRadius: "1rem",
-                    border: "1px solid #ccc",
-                    marginBottom: "1.5rem",
-                    width: "300px",
-                    outline: "none",
-                    color: "#222"
-                }}
-                disabled={loading}
+        <div className="relative w-full h-screen">
+            {/* Spline background */}
+            <Spline
+                scene="https://prod.spline.design/NK5tL3OEjwwjxb5y/scene.splinecode"
+                className="absolute w-full h-full z-0 blur-md"
             />
-            {error && (
-                <div style={{ color: "#ef4444", marginBottom: "1rem" }}>{error}</div>
-            )}
-            <button
-                onClick={handleCreateMeeting}
-                disabled={loading}
-                style={{
-                    padding: "1rem 2.5rem",
-                    fontSize: "1.5rem",
-                    borderRadius: "2rem",
-                    border: "none",
-                    background: "#0070f3",
-                    color: "#fff",
-                    cursor: loading ? "not-allowed" : "pointer",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                    transition: "background 0.2s",
-                }}>
-                {loading ? "Creating..." : "Create Meeting"}
-            </button>
-            {meetingId && (
-                <div style={{
-                    marginTop: 32,
-                    fontSize: "1.2rem",
-                    color: "#222",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center"
-                }}>
-                    <div>
-                        <strong>Meeting ID:</strong> {meetingId}
-                    </div>
-                    <button
-                        onClick={handleJoinMeeting}
-                        style={{
-                            marginTop: "1rem",
-                            padding: "0.75rem 2rem",
-                            fontSize: "1.1rem",
-                            borderRadius: "1.5rem",
-                            border: "none",
-                            background: "#22c55e",
-                            color: "#fff",
-                            cursor: "pointer",
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                            transition: "background 0.2s",
+
+            {/* Decorative overlay */}
+            <div
+                className="absolute bottom-0 right-0 w-48 h-18 rounded-lg z-10 pointer-events-none bg-[#FFFAFA]"
+                aria-hidden="true"
+            />
+
+            {/* Form */}
+            <main className="relative z-20 flex min-h-screen flex-col items-center justify-center">
+                <div className="flex min-h-screen flex-col items-center justify-center">
+                    <input
+                        type="text"
+                        placeholder="Enter meeting title"
+                        value={title}
+                        onChange={(e) => {
+                            setTitle(e.target.value);
+                            setError(null);
                         }}
+                        disabled={loading}
+                        className="w-[300px] mb-6 px-6 py-3 text-lg rounded-2xl border border-gray-300 text-gray-800 focus:outline-none"
+                    />
+
+                        {error && (
+                            <div className=" text-red-500 font-medium text-xl mb-4">
+                                {error}
+                            </div>
+                        )}
+
+                    <button
+                        onClick={handleCreateMeeting}
+                        disabled={loading}
+                        className={`glass-card px-10 py-4 text-xl  text-white rounded-2xl duration-200 opacity-100 hover:opacity-80 transition-colors
+                 ${loading
+                                ? "bg-primary/70 cursor-not-allowed"
+                                : "bg-primary/80 hover:bg-primary/70 cursor-pointer"
+                            }`}
                     >
-                        Join Meeting
+                        {loading ? "Creating..." : "Create Meeting"}
                     </button>
+
+                    {meetingId && (
+                        <div className="mt-8 flex flex-col items-center text-lg text-gray-800">
+                            <div className="mb-6">
+                                <strong>Meeting ID:</strong> {meetingId}
+                            </div>
+                            <button
+                                onClick={handleJoinMeeting}
+                                className="
+                                glass-card bg-primary/80 backdrop-blur-sm px-8 rounded-2xl py-3 text-lg font-semibold text-white opacity-90 hover:opacity-80 cursor-pointer"
+                            >
+                                Join Meeting
+                            </button>
+                        </div>
+                    )}
                 </div>
-            )}
+            </main>
         </div>
     );
 }
