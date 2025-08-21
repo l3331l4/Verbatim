@@ -3,6 +3,7 @@ import asyncio
 import logging
 from typing import Dict, Optional, Callable, Awaitable
 import os
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +29,12 @@ class ASRClient:
         try:
             ws_url = f"{self.asr_service_url}/process/{meeting_id}"
             self.connections[meeting_id] = await websockets.connect(ws_url)
+
+            await self.connections[meeting_id].send(json.dumps({
+                "type": "identify",
+                "clientId": f"asr_service_{meeting_id}"
+            }))
+
             asyncio.create_task(self.listen_for_messages(meeting_id))
             logger.info(f"Connected to ASR service for meeting {meeting_id}")
             return True
