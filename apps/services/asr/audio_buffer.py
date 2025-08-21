@@ -16,7 +16,7 @@ class MeetingAudioBuffer:
         self.last_audio_time = None
 
         self.vad = webrtcvad.Vad(3)
-        self.min_audio_duration = 1.0
+        self.min_audio_duration = 0.2
 
         self.frame_buffer = bytes()
         self.frame_size = 320 * 2  # 20ms at 16kHz, 2 bytes per sample

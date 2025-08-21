@@ -13,7 +13,6 @@ class WhisperProcessor:
         self.model = None
         self.transcripts_dir = transcripts_dir
         self.compute_type = "float32"
-        self.min_segment_length = 1.0
 
         os.makedirs(self.transcripts_dir, exist_ok=True)
 
@@ -92,8 +91,6 @@ class WhisperProcessor:
             now = datetime.now(timezone.utc)
 
             for segment in segments:
-                if segment.end - segment.start < self.min_segment_length:
-                    continue
                 text = self.post_process_text(segment.text)
                 if not text:
                     continue
