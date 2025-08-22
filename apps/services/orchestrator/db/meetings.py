@@ -17,6 +17,14 @@ def create_meeting(title):
     result = meetings_collection.insert_one(meeting_dict)
     return meeting_dict["meeting_id"]
 
+def get_meeting_by_id(meeting_id: str):
+    db = get_db()
+    meetings_collection = db["meetings"]
+    doc = meetings_collection.find_one({"meeting_id": meeting_id})
+    if not doc:
+        return None
+    return Meeting(**doc)
+
 if __name__ == "__main__":
     meeting_id = create_meeting(title="Test Meeting")
     print(f"Created meeting with ID: {meeting_id}")

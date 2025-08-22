@@ -2,8 +2,14 @@
 
 import { Button } from "@/components/ui/button"
 
-export function SmoothScrollButton({ targetId, children, className, ...props }) {
-  const handleClick = (e) => {
+interface SmoothScrollButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  targetId: string;
+  children: React.ReactNode;
+  className?: string;
+}
+
+export function SmoothScrollButton({ targetId, children, className, ...props }: SmoothScrollButtonProps) {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     document.getElementById(targetId)?.scrollIntoView({ 
       behavior: 'smooth' 

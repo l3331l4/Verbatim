@@ -2,7 +2,8 @@
 import { use, useState, useEffect, useRef } from "react";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import ClientAvatars from "@/components/ClientAvatars";
-
+import { getMeeting } from "@/lib/api";
+import { usePathname } from "next/navigation";
 
 import MicrophoneButton from "@/components/MicrophoneButton";
 import AudioChunkRecorder from "@/components/AudioChunkRecorder";
@@ -21,11 +22,20 @@ interface TranscriptMessage {
 export default function MeetingPage({ params }: MeetingPageProps) {
 
     const { id } = use(params);
+    const [meetingTitle, setMeetingTitle] = useState<string | null>(null);
     const { status, sendMessage, lastMessage, sendBinary, canRecord, clientId, clients } = useWebSocket(id);
     const [transcripts, setTranscripts] = useState<TranscriptMessage[]>([]);
     const transcriptContainerRef = useRef<HTMLDivElement>(null);
     const [copied, setCopied] = useState(false);
     const [transcriptMode, setTranscriptMode] = useState<"interview" | "paragraph">("interview");
+    const [copiedLink, setCopiedLink] = useState(false);
+    const pathname = typeof window !== "undefined" ? window.location.pathname : "";
+
+    useEffect(() => {
+        getMeeting(id)
+            .then(data => setMeetingTitle(data.title))
+            .catch(() => setMeetingTitle(null));
+    }, [id]);
 
     useEffect(() => {
         if (lastMessage) {
@@ -64,6 +74,10 @@ export default function MeetingPage({ params }: MeetingPageProps) {
             setTimeout(() => setCopied(false), 1500);
         });
     };
+
+    const meetingLink = typeof window !== "undefined"
+        ? `${window.location.origin}/meeting/${id}`
+        : `https://yourapp.com/meeting/${id}`;
 
     function exportTranscript() {
         const text = getTranscriptText();
@@ -104,16 +118,39 @@ export default function MeetingPage({ params }: MeetingPageProps) {
                     {/* glass-card w-full max-w-7xl p-8 */}
                     {/* Header */}
                     <div className="flex items-center justify-between mb-6">
-                        <h1 className="text-2xl font-semibold text-gray-800">
-                            Meeting: {id}
-                        </h1>
+                        <div className="">
+                            <h1 className="text-2xl font-heading font-medium text-gray-800 ">
+                                {meetingTitle || "Untitled Meeting"}
+                            </h1>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-2 mb-4">
+                                <span className="font-body text-sm text-gray-500">
+                                    Meeting Link:
+                                </span>
+                                <span
+                                    className="font-body text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded select-all max-w-1/3 truncate"
+                                    title={meetingLink} // tooltip shows full link
+                                >
+                                    {meetingLink}
+                                </span>
+                                <button
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(meetingLink);
+                                        setCopiedLink(true);
+                                        setTimeout(() => setCopiedLink(false), 1200);
+                                    }}
+                                    className="ml-2 px-3 py-1 rounded bg-primary/10 text-primary font-medium text-xs hover:bg-primary/20 transition"
+                                >
+                                    {copiedLink ? "Copied!" : "Copy Link"}
+                                </button>
+                            </div>
+                        </div>
 
                         <div className="flex items-center space-x-4">
                             {/* Client avatars display */}
                             <ClientAvatars clients={clients} currentClientId={clientId} />
 
                             <div
-                                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${status === "connected"
+                                className={`glass-effect     inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${status === "connected"
                                     ? "bg-green-100 text-green-700"
                                     : status === "connecting"
                                         ? "bg-yellow-100 text-yellow-700"
@@ -278,6 +315,6 @@ export default function MeetingPage({ params }: MeetingPageProps) {
                     </button>
                 </div>
             </div>
-        </main>
+        </main >
     );
 }

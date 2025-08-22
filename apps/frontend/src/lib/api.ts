@@ -6,6 +6,11 @@ interface MeetingResponse {
     meeting_id: string;
 }
 
+interface MeetingDetailsResponse {
+    meeting_id: string;
+    title: string;
+}
+
 async function fetchWrapper<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     try {
         const res = await fetch(`${API_URL}${endpoint}`, {
@@ -30,4 +35,10 @@ export async function createMeeting(title?: string): Promise<MeetingResponse> {
         method: "POST",
         body
     });
+}
+
+export async function getMeeting(meetingId: string) {
+  return fetchWrapper<MeetingDetailsResponse>(`/meetings/${meetingId}`, {
+    method: "GET"
+  });
 }

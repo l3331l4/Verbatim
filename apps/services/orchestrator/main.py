@@ -2,7 +2,7 @@ import logging
 import json
 import uuid
 import asyncio
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Path
 from fastapi.middleware.cors import CORSMiddleware
 from apps.services.orchestrator.db.meetings import create_meeting
 from apps.services.orchestrator.routes import health
@@ -59,6 +59,14 @@ def create_meeting_endpoint(meeting: MeetingCreateRequest):
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Failed to create meeting: {e}")
+    
+@app.get("/meetings/{meeting_id}")
+def get_meeting(meeting_id: str = Path(...)):
+    from apps.services.orchestrator.db.meetings import get_meeting_by_id
+    meeting = get_meeting_by_id(meeting_id)
+    if not meeting:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+    return {"meeting_id": meeting_id, "title": meeting.title}    
 
 
 async def broadcast_client_list(meeting_id: str):
