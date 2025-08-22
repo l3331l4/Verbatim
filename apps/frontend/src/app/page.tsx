@@ -73,7 +73,7 @@ export default function Home() {
           </div>
           <div className="mx-auto grid justify-center gap-4 sm:grid-cols-2 md:max-w-[64rem] md:grid-cols-3">
             {/* Feature cards */}
-            <div className="glass-card p-6 flex flex-col items-center text-center">
+            <div className="glass-card p-6 flex flex-col items-center text-center hover:border-primary/20 hover:bg-primary/5 transition-colors duration-300">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/20 backdrop-blur-sm">
                 <AudioLines className="h-6 w-6 text-primary" />
               </div>
@@ -84,7 +84,7 @@ export default function Home() {
                 </p>
               </div>
             </div>
-            <div className="glass-card p-6 flex flex-col items-center text-center">
+            <div className="glass-card p-6 flex flex-col items-center text-center hover:border-primary/20 hover:bg-primary/5 transition-colors duration-300">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/20 backdrop-blur-sm">
                 <SquareMenu className="h-6 w-6 text-primary" />
               </div>
@@ -95,7 +95,7 @@ export default function Home() {
                 </p>
               </div>
             </div>
-            <div className="glass-card p-6 flex flex-col items-center text-center">
+            <div className="glass-card p-6 flex flex-col items-center text-center hover:border-primary/20 hover:bg-primary/5 transition-colors duration-300">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/20 backdrop-blur-sm">
                 <Download className="h-6 w-6 text-primary" />
               </div>
@@ -127,25 +127,25 @@ export default function Home() {
             </p>
           </div>
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 text-center">
-            <div className="glass-card p-6">
+            <div className="glass-card p-6 hover:border-primary/20 hover:bg-primary/5 transition-colors duration-300">
               <div className="space-y-2">
                 <h3 className="font-heading font-bold text-xl">Create a Meeting</h3>
                 <p className="font-body text-muted-foreground">Give your meeting a title and start a session to begin capturing your conversation.</p>
               </div>
             </div>
-            <div className="glass-card p-6">
+            <div className="glass-card p-6 hover:border-primary/20 hover:bg-primary/5 transition-colors duration-300">
               <div className="space-y-2">
                 <h3 className="font-heading font-bold text-xl">Join & Speak</h3>
                 <p className="font-body text-muted-foreground">Speak freely while Verbatim transcribes everything in real time. Share a link so others can watch the transcript update live.</p>
               </div>
             </div>
-            <div className="glass-card p-6">
+            <div className="glass-card p-6 hover:border-primary/20 hover:bg-primary/5 transition-colors duration-300">
               <div className="space-y-2">
                 <h3 className="font-heading font-bold text-xl">Format Your Transcript</h3>
                 <p className="font-body text-muted-foreground">Choose paragraph style for line-by-line with timestamps for more structured transcripts.</p>
               </div>
             </div>
-            <div className="glass-card p-6">
+            <div className="glass-card p-6 hover:border-primary/20 hover:bg-primary/5 transition-colors duration-300">
               <div className="space-y-2">
                 <h3 className="font-heading font-bold text-xl">Export & Share</h3>
                 <p className="font-body text-muted-foreground">Copy, download, or share your transcripts instantly for collaboration or review.</p>
