@@ -128,7 +128,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
                                 </span>
                                 <span
                                     className="font-body text-xs text-gray-500 bg-white/70 px-2 py-1 rounded-md select-all max-w-1/3 truncate"
-                                    title={meetingLink} 
+                                    title={meetingLink}
                                 >
                                     {meetingLink}
                                 </span>
@@ -138,7 +138,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
                                         setCopiedLink(true);
                                         setTimeout(() => setCopiedLink(false), 1200);
                                     }}
-                                    className="ml-2 px-3 py-1 rounded-md bg-primary/15 text-primary font-body font-medium text-xs hover:bg-primary/20 min-w-[80px] transition"
+                                    className="ml-2 px-3 w-auto py-1 rounded-md bg-primary/15 text-primary font-body font-medium text-xs max-w-1/3 hover:bg-primary/20 transition"
                                 >
                                     {copiedLink ? "Copied!" : "Copy Link"}
                                 </button>
@@ -277,7 +277,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
                     </button> */}
                     </div>
                 </div>
-                <div className="glass-card fixed bottom-8 right-8 flex gap-4 z-50">
+                <div className="glass-card fixed bottom-8 right-8 flex gap-4 z-50 overflow-visible">
                     <div
                         className={`absolute top-0 bottom-0 w-11 bg-white rounded-full shadow-md transition-all duration-500 cubic-bezier(0.5, 1, 0.89, 1) 
                             ${transcriptMode === "interview"
@@ -287,32 +287,44 @@ export default function MeetingPage({ params }: MeetingPageProps) {
                     />
 
                     {/* Interview Style */}
-                    <button
-                        onClick={() => setTranscriptMode("interview")}
-                        className={`p-2 rounded-full transition-all duration-500 relative z-10 data-tooltip-target="tooltip-hover" data-tooltip-trigger="hover" ${transcriptMode === "interview"
-                            ? "border-transparent"
-                            : "border-gray-300 hover:bg-gray-100"
-                            }`}
-                        aria-label="Interview Style Transcript"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7 text-violet-300">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" />
-                        </svg>
-                    </button>
+                    <div className="relative group">
+                        <button
+                            onClick={() => setTranscriptMode("interview")}
+                            className={`p-2 rounded-full transition-all duration-500 relative z-10 data-tooltip-target="tooltip-hover" data-tooltip-trigger="hover" ${transcriptMode === "interview"
+                                ? "border-transparent"
+                                : "border-gray-300 hover:bg-gray-100"
+                                }`}
+                            aria-label="Interview Style Transcript"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7 text-violet-300">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" />
+                            </svg>
+                        </button>
+                        <div className="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 opacity-0 group-hover:opacity-100 pointer-events-none transition
+                        bg-black/40 text-white text-xs rounded px-1 py-1 shadow-lg whitespace-normal break-words max-w-xs min-w-[11rem] text-center z-50">
+                            Q&A format with timestamps
+                        </div>
+                    </div>
 
                     {/* Paragraph Style */}
-                    <button
-                        onClick={() => setTranscriptMode("paragraph")}
-                        className={`p-2 rounded-full transition-all duration-500 relative z-10 ${transcriptMode === "paragraph"
-                            ? "border-transparent"
-                            : "border-gray-300 hover:bg-gray-100"
-                            }`}
-                        aria-label="Paragraph Style Transcript"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7 text-indigo-300">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.068.157 2.148.279 3.238.364.466.037.893.281 1.153.671L12 21l2.652-3.978c.26-.39.687-.634 1.153-.67 1.09-.086 2.17-.208 3.238-.365 1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
-                        </svg>
-                    </button>
+                    <div className="relative group">
+                        <button
+                            onClick={() => setTranscriptMode("paragraph")}
+                            className={`p-2 rounded-full transition-all duration-500 relative z-10 ${transcriptMode === "paragraph"
+                                ? "border-transparent"
+                                : "border-gray-300 hover:bg-gray-100"
+                                }`}
+                            aria-label="Paragraph Style Transcript"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7 text-indigo-300">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.068.157 2.148.279 3.238.364.466.037.893.281 1.153.671L12 21l2.652-3.978c.26-.39.687-.634 1.153-.67 1.09-.086 2.17-.208 3.238-.365 1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+                            </svg>
+                        </button>
+                        <div className="absolute left-1/2 bottom-full mb-2 -translate-x-28 opacity-0 group-hover:opacity-100 transition
+    bg-black/40 text-white text-xs rounded px-1 py-1 shadow-lg whitespace-normal break-words text-center z-50 max-w-xs min-w-[10rem] max-w-[calc(100vw-2rem)]">
+                            Flowing text without labels
+                        </div>
+                    </div>
                 </div>
             </div>
         </main >
