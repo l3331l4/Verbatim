@@ -127,8 +127,8 @@ export default function MeetingPage({ params }: MeetingPageProps) {
                                     Meeting Link:
                                 </span>
                                 <span
-                                    className="font-body text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded select-all max-w-1/3 truncate"
-                                    title={meetingLink} // tooltip shows full link
+                                    className="font-body text-xs text-gray-500 bg-white/70 px-2 py-1 rounded-md select-all max-w-1/3 truncate"
+                                    title={meetingLink} 
                                 >
                                     {meetingLink}
                                 </span>
@@ -138,7 +138,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
                                         setCopiedLink(true);
                                         setTimeout(() => setCopiedLink(false), 1200);
                                     }}
-                                    className="ml-2 px-3 py-1 rounded bg-primary/10 text-primary font-medium text-xs hover:bg-primary/20 transition"
+                                    className="ml-2 px-3 py-1 rounded-md bg-primary/15 text-primary font-body font-medium text-xs hover:bg-primary/20 min-w-[80px] transition"
                                 >
                                     {copiedLink ? "Copied!" : "Copy Link"}
                                 </button>
@@ -189,7 +189,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
                                         <line x1="12" y1="19" x2="12" y2="22" />
                                     </svg>
                                 </div>
-                                <p className="text-gray-600 italic">
+                                <p className="text-gray-600 font-body italic">
                                     Transcription will appear here when you speak...
                                 </p>
                             </div>
