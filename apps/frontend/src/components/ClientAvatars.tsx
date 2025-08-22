@@ -30,7 +30,7 @@ const ClientAvatars = ({ clients, currentClientId }: ClientAvatarsProps) => {
 
   return (
     <div className="flex items-center space-x-3">
-      <span className="text-sm text-gray-600">{clients.length} connected</span>
+      <span className="text-sm text-gray-600 font-body">{clients.length} connected</span>
 
       <div className="flex -space-x-0">
         {clients.map((client) => {
@@ -71,7 +71,7 @@ const ClientAvatars = ({ clients, currentClientId }: ClientAvatarsProps) => {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center space-x-3 text-xs text-gray-500">
+      <div className="flex items-center space-x-3 text-xs text-gray-500 font-body">
         <Legend color="border-[rgba(124,157,248,1)]" label="You" />
         <Legend color="border-[rgba(145,106,251,1)]" label="Recording" />
       </div>
