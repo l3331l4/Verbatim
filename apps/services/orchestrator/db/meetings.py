@@ -25,6 +25,12 @@ def get_meeting_by_id(meeting_id: str):
         return None
     return Meeting(**doc)
 
+def delete_meeting_by_id(meeting_id: str):
+    db = get_db()
+    meetings_collection = db["meetings"]
+    result = meetings_collection.delete_one({"meeting_id": meeting_id})
+    return result.deleted_count
+
 if __name__ == "__main__":
     meeting_id = create_meeting(title="Test Meeting")
     print(f"Created meeting with ID: {meeting_id}")

@@ -4,7 +4,7 @@ import uuid
 import asyncio
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Path
 from fastapi.middleware.cors import CORSMiddleware
-from apps.services.orchestrator.db.meetings import create_meeting
+from apps.services.orchestrator.db.meetings import create_meeting, delete_meeting_by_id
 from apps.services.orchestrator.routes import health
 from pydantic import BaseModel
 from typing import NamedTuple, Optional, Dict
@@ -226,24 +226,7 @@ async def websocket_meeting(websocket: WebSocket, meeting_id: str):
             if meeting_id in host_clients:
                 host_clients.pop(meeting_id)
             await asr_client.disconnect_meeting(meeting_id)
-        # elif meeting_id in connections:
-        #     if host_clients.get(meeting_id) == client_id:
-        #         new_host = next(iter(connections[meeting_id].keys()), None)
-        #         if new_host:
-        #             host_clients[meeting_id] = new_host
-        #             recording_clients[meeting_id] = new_host
-        #             print(f"Host disconnected, reassigning to {new_host}")
-        #             try:
-        #                 new_host_ws = connections[meeting_id][new_host].websocket
-        #                 await new_host_ws.send_text(json.dumps({
-        #                     "type": "connection_status",
-        #                     "status": "connected",
-        #                     "canRecord": True,
-        #                     "clientId": new_host,
-        #                 }))
-        #             except Exception:
-        #                 pass
-            await broadcast_client_list(meeting_id)
+            delete_meeting_by_id(meeting_id)
 
 
 @app.post("/meetings/{meeting_id}/test-message")
