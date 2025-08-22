@@ -3,8 +3,9 @@ import Link from "next/link"
 import { Sparkles, ArrowRight, AudioLines, SquareMenu, Download, } from "lucide-react"
 import Spline from '@splinetool/react-spline/next';
 import { Button } from "@/components/ui/button"
-import { GradientBackground } from "@/components/ui/gradient-background"
-import { ScrollIndicator } from "@/components/ScrollIndicator" // Adjust path as needed
+import { ScrollIndicator } from "@/components/ScrollIndicator"
+import { SmoothScrollButton } from "@/components/SmoothScrollButton"
+import { GradientBackground } from "@/components/ui/gradient-background";
 
 
 export default function Home() {
@@ -40,9 +41,14 @@ export default function Home() {
                   Start a Meeting <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="glass-button rounded-xl" asChild>
-                <Link href="#features">Learn More</Link>
-              </Button>
+              <SmoothScrollButton
+                targetId="features"
+                size="lg"
+                variant="outline"
+                className="glass-button rounded-xl cursor-pointer"
+              >
+                Learn More
+              </SmoothScrollButton>
             </div>
           </div>
         </section>
@@ -134,8 +140,8 @@ export default function Home() {
           </div>
           <div className="text-center mt-12">
             <Link href="create">
-              <Button size="lg" className="font-body bg-primary/90 backdrop-blur-sm px-8 rounded-2xl py-3 text-lg font-semibold text-white opacity-90 hover:opacity-80">
-                {/* <Button size="lg" className="bg-primary/90 backdrop-blur-sm rounded-2xl text-white opacity-90 hover:opacity-80" asChild></Button> */}
+              <Button size="lg" className="bg-primary/90 text-lg backdrop-blur-sm rounded-2xl text-white opacity-90 hover:opacity-80">
+              {/* font-body bg-primary/90 backdrop-blur-sm px-8 rounded-2xl py-3 text-lg font-semibold text-white opacity-90 hover:opacity-80 */}
                 Start a Meeting <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
