@@ -1,9 +1,11 @@
 import Image from "next/image";
 import Link from "next/link"
-import { ArrowRight, AudioLines, SquareMenu, Download } from "lucide-react"
+import { Sparkles, ArrowRight, AudioLines, SquareMenu, Download, } from "lucide-react"
 import Spline from '@splinetool/react-spline/next';
 import { Button } from "@/components/ui/button"
 import { GradientBackground } from "@/components/ui/gradient-background"
+import { ScrollIndicator } from "@/components/ScrollIndicator" // Adjust path as needed
+
 
 export default function Home() {
   return (
@@ -11,7 +13,7 @@ export default function Home() {
       {/* Spline canvas and bottom-right overlay */}
       <Spline
         scene="https://prod.spline.design/NK5tL3OEjwwjxb5y/scene.splinecode"
-        className="absolute w-full h-full z-0"
+        className="absolute w-full h-full z-0 opacity-0 animate-fade-in"
       />
       <div
         className="absolute bottom-0 right-0 w-48 h-18 rounded-lg z-10 pointer-events-none"
@@ -22,17 +24,17 @@ export default function Home() {
       <main className="relative z-20 flex min-h-screen flex-col items-center justify-center">
         <section className="relative space-y-6 pb-8 pt-6 md:pb-12 md:pt-10 lg:py-32 overflow-hidden">
           <div className="p-8 container flex max-w-[64rem] flex-col items-center gap-4 text-center relative z-10">
-            <div className="rounded-full bg-primary/10 backdrop-blur-sm px-4 py-1.5 text-sm font-medium text-primary border border-primary/20">
-              Introducing Verbatim
+            <div className="rounded-full bg-primary/10 backdrop-blur-sm px-4 py-1.5 text-sm font-medium text-primary border border-primary/20 font-body">
+              <Sparkles className="inline-block mr-0.5 size-5 pb-1" />Introducing Verbatim
             </div>
-            <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl lg:text-7xl gradient-text font-medium">
+            <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl lg:text-7xl gradient-text font-medium leading-[1.2]">
               AI-Powered Real-Time Transcription
             </h1>
-            <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-lg sm:leading-8 p-4 rounded-xl glass-card backdrop-blur-sm shadow-none">
+            <p className="font-body max-w-[42rem] leading-normal text-muted-foreground sm:text-lg sm:leading-8 p-4 rounded-xl glass-card backdrop-blur-sm shadow-none">
               Capture every word effortlessly. Real-time speech-to-text with flexible formatting options,
               instant export and seamless transcription for meetings, interviews, and conversations.
             </p>
-            <div className="flex flex-wrap justify-center gap-4 mt-6">
+            <div className="flex flex-wrap justify-center gap-4 mt-6 font-body">
               <Button size="lg" className="bg-primary/90 backdrop-blur-sm rounded-2xl text-white opacity-90 hover:opacity-80" asChild>
                 <Link href="create">
                   Start a Meeting <ArrowRight className="ml-2 h-4 w-4" />
@@ -44,9 +46,9 @@ export default function Home() {
             </div>
           </div>
         </section>
-        <br />
-        <br />
-        <br />
+        <div className="py-16">
+          <ScrollIndicator />
+        </div>
 
         {/* Features */}
         <section id="features" className="container space-y-6 py-8 md:py-12 lg:py-24">
@@ -54,7 +56,7 @@ export default function Home() {
             <h2 className="font-heading text-3xl leading-[1.3] sm:text-3xl md:text-6xl gradient-text font-medium">
               Transcribe. Format. Share.
             </h2>
-            <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
+            <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7 font-body">
               Verbatim helps you capture, structure, and share conversations in real time.
             </p>
           </div>
@@ -65,8 +67,8 @@ export default function Home() {
                 <AudioLines className="h-6 w-6 text-primary" />
               </div>
               <div className="space-y-2 pt-6">
-                <h3 className="font-bold">Real-Time Transcription</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="font-bold font-heading">Real-Time Transcription</h3>
+                <p className="font-body text-sm text-muted-foreground">
                   Turn your speech into text instantly so nothing gets lost in meetings, interviews, or conversations.
                 </p>
               </div>
@@ -76,8 +78,8 @@ export default function Home() {
                 <SquareMenu className="h-6 w-6 text-primary" />
               </div>
               <div className="space-y-2 pt-6">
-                <h3 className="font-bold">Flexible Formatting</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="font-bold font-heading">Flexible Formatting</h3>
+                <p className="font-body text-sm text-muted-foreground">
                   Choose between paragraph style for easy reading, or line-by-line with timestamps for more structured transcripts.
                 </p>
               </div>
@@ -87,8 +89,8 @@ export default function Home() {
                 <Download className="h-6 w-6 text-primary" />
               </div>
               <div className="space-y-2 pt-6">
-                <h3 className="font-bold">Instant Export & Sharing</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="font-bold font-heading">Instant Export & Sharing</h3>
+                <p className="font-body text-sm text-muted-foreground">
                   Copy, download, or share your transcripts right away. Perfect for collaboration or later review.
                 </p>
               </div>
@@ -100,39 +102,39 @@ export default function Home() {
             <h2 className="font-heading text-3xl leading-[1.1] sm:text-3xl md:text-6xl gradient-text font-medium">
               How It Works
             </h2>
-            <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
+            <p className="font-body max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
               Start a meeting and see your conversations transcribed in real time. From creation to sharing, here’s the simple workflow.
             </p>
           </div>
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 text-center">
             <div className="glass-card p-6">
               <div className="space-y-2">
-                <h3 className="font-bold text-xl">Create a Meeting</h3>
-                <p className="text-muted-foreground">Give your meeting a title and start a session to begin capturing your conversation.</p>
+                <h3 className="font-heading font-bold text-xl">Create a Meeting</h3>
+                <p className="font-body text-muted-foreground">Give your meeting a title and start a session to begin capturing your conversation.</p>
               </div>
             </div>
             <div className="glass-card p-6">
               <div className="space-y-2">
-                <h3 className="font-bold text-xl">Join & Speak</h3>
-                <p className="text-muted-foreground">Speak freely while Verbatim transcribes everything in real time. Share a link so others can watch the transcript update live.</p>
+                <h3 className="font-heading font-bold text-xl">Join & Speak</h3>
+                <p className="font-body text-muted-foreground">Speak freely while Verbatim transcribes everything in real time. Share a link so others can watch the transcript update live.</p>
               </div>
             </div>
             <div className="glass-card p-6">
               <div className="space-y-2">
-                <h3 className="font-bold text-xl">Format Your Transcript</h3>
-                <p className="text-muted-foreground">Choose paragraph style for line-by-line with timestamps for more structured transcripts.</p>
+                <h3 className="font-heading font-bold text-xl">Format Your Transcript</h3>
+                <p className="font-body text-muted-foreground">Choose paragraph style for line-by-line with timestamps for more structured transcripts.</p>
               </div>
             </div>
             <div className="glass-card p-6">
               <div className="space-y-2">
-                <h3 className="font-bold text-xl">Export & Share</h3>
-                <p className="text-muted-foreground">Copy, download, or share your transcripts instantly for collaboration or review.</p>
+                <h3 className="font-heading font-bold text-xl">Export & Share</h3>
+                <p className="font-body text-muted-foreground">Copy, download, or share your transcripts instantly for collaboration or review.</p>
               </div>
             </div>
           </div>
           <div className="text-center mt-12">
             <Link href="create">
-              <Button size="lg" className="bg-primary/90 backdrop-blur-sm px-8 rounded-2xl py-3 text-lg font-semibold text-white opacity-90 hover:opacity-80">
+              <Button size="lg" className="font-body bg-primary/90 backdrop-blur-sm px-8 rounded-2xl py-3 text-lg font-semibold text-white opacity-90 hover:opacity-80">
                 {/* <Button size="lg" className="bg-primary/90 backdrop-blur-sm rounded-2xl text-white opacity-90 hover:opacity-80" asChild></Button> */}
                 Start a Meeting <ArrowRight className="ml-2 h-4 w-4" />
               </Button>

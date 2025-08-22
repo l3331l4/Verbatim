@@ -9,6 +9,7 @@ export default function CreateMeetingPage() {
     const [loading, setLoading] = useState(false);
     const [title, setTitle] = useState<string>("");
     const [error, setError] = useState<string | null>(null);
+    const [loaded, setLoaded] = useState(false);
     const router = useRouter();
 
     const handleCreateMeeting = async () => {
@@ -46,7 +47,8 @@ export default function CreateMeetingPage() {
             {/* Spline background */}
             <Spline
                 scene="https://prod.spline.design/NK5tL3OEjwwjxb5y/scene.splinecode"
-                className="absolute w-full h-full z-0 blur-md"
+                onLoad={() => setLoaded(true)}
+                className={`absolute w-full h-full z-0 blur-md transition-opacity duration-1500 ease-in-out ${loaded ? "opacity-100" : "opacity-0"}`}
             />
 
             {/* Decorative overlay */}
