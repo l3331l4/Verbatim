@@ -4,6 +4,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 
 import { ReactLenis } from '@/lib/lenis'
+import Navbar from "@/components/Navbar";
 
 const satoshi = localFont({
   src: [
@@ -59,6 +60,7 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} ${satoshi.variable} ${inter.variable} antialiased`}
         >
+          <Navbar />
           {children}
         </body>
       </ReactLenis>
