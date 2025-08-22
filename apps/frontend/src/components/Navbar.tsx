@@ -1,7 +1,7 @@
 "use client"
 
 import { usePathname, useRouter } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 const navItems = [
     { label: "Home", href: "/" },
@@ -10,10 +10,30 @@ const navItems = [
     { label: "Create", href: "/create" },
 ]
 
+function getInitialActiveItem(pathname: string): string | null {
+    if (pathname === "/create") return "Create"
+    if (pathname === "/") return "Home"
+    if (pathname.startsWith("/meeting/")) return null
+    return null
+}
+
 export default function Navbar() {
     const router = useRouter()
     const pathname = usePathname()
-    const [activeItem, setActiveItem] = useState("Home")
+    const [activeItem, setActiveItem] = useState<string | null>(() => getInitialActiveItem(pathname))
+
+
+    useEffect(() => {
+        if (pathname === "/create") {
+            setActiveItem("Create")
+        } else if (pathname === "/") {
+            setActiveItem("Home")
+        } else if (pathname.startsWith("/meeting/")) {
+            setActiveItem(null)
+        } else {
+            setActiveItem(null)
+        }
+    }, [pathname])
 
     const handleNav = (item: typeof navItems[number]) => (e: React.MouseEvent) => {
         e.preventDefault()
