@@ -1,3 +1,4 @@
+import logging
 import json
 import uuid
 import asyncio
@@ -8,9 +9,8 @@ from apps.services.orchestrator.routes import health
 from pydantic import BaseModel
 from typing import NamedTuple, Optional, Dict
 from .asr_client import asr_client
-ASR_CLIENT_ID_PREFIX = "asr_service_" 
+ASR_CLIENT_ID_PREFIX = "asr_service_"
 
-import logging
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
@@ -116,23 +116,24 @@ async def _init_asr_callback():
 async def websocket_meeting(websocket: WebSocket, meeting_id: str):
     await websocket.accept()
     client_id = None
-    
+
     try:
         identify_msg = await asyncio.wait_for(websocket.receive_text(), timeout=2)
         msg = json.loads(identify_msg)
         if msg.get("type") == "identify" and "clientId" in msg:
             client_id = msg["clientId"]
-            print(f"Client {client_id} reconnected to meeting {meeting_id} (identify)")
+            print(
+                f"Client {client_id} reconnected to meeting {meeting_id} (identify)")
         else:
             client_id = str(uuid.uuid4())[:8]
     except Exception:
         client_id = str(uuid.uuid4())[:8]
-    
+
     # Check if this is the ASR service client
     is_asr_client = client_id.startswith("asr_service_")
-    
+
     print(f"Client {client_id} connected to meeting {meeting_id}")
-    
+
     if is_asr_client:
         print(f"ASR service client connected for meeting {meeting_id}")
         try:
@@ -146,7 +147,7 @@ async def websocket_meeting(websocket: WebSocket, meeting_id: str):
             print(f"ASR WebSocket error: {e}")
         finally:
             return  # Exit early for ASR clients
-    
+
     first_client = meeting_id not in connections
     if first_client:
         connections[meeting_id] = {}
@@ -167,9 +168,9 @@ async def websocket_meeting(websocket: WebSocket, meeting_id: str):
             print(f"Meeting revival - setting {client_id} as new host")
 
     connections[meeting_id][client_id] = ClientInfo(websocket, client_id)
-    
-    print(f"Meeting {meeting_id} now has {len(connections[meeting_id])} clients")
-    
+
+    print(
+        f"Meeting {meeting_id} now has {len(connections[meeting_id])} clients")
 
     can_record = host_clients.get(meeting_id) == client_id
 
@@ -182,7 +183,7 @@ async def websocket_meeting(websocket: WebSocket, meeting_id: str):
         }))
 
         await broadcast_client_list(meeting_id)
-        
+
         while True:
             message = await websocket.receive()
             if "text" in message:
@@ -200,7 +201,8 @@ async def websocket_meeting(websocket: WebSocket, meeting_id: str):
                         "type": "error",
                         "message": "Only the host can record audio"
                     }))
-                    print(f"Client {client_id} attempted to send audio, but is not the host. {host_id}")
+                    print(
+                        f"Client {client_id} attempted to send audio, but is not the host. {host_id}")
     except WebSocketDisconnect:
         print(f"Client {client_id} disconnected from meeting {meeting_id}")
     except Exception as e:
@@ -216,24 +218,24 @@ async def websocket_meeting(websocket: WebSocket, meeting_id: str):
             if meeting_id in host_clients:
                 host_clients.pop(meeting_id)
             await asr_client.disconnect_meeting(meeting_id)
-        elif meeting_id in connections:
-            if host_clients.get(meeting_id) == client_id:
-                new_host = next(iter(connections[meeting_id].keys()), None)
-                if new_host:
-                    host_clients[meeting_id] = new_host
-                    recording_clients[meeting_id] = new_host
-                    print(f"Host disconnected, reassigning to {new_host}")
-                    try:
-                        new_host_ws = connections[meeting_id][new_host].websocket
-                        await new_host_ws.send_text(json.dumps({
-                            "type": "connection_status",
-                            "status": "connected",
-                            "canRecord": True,
-                            "clientId": new_host,
-                        }))
-                    except Exception:
-                        pass
-                    await broadcast_client_list(meeting_id)
+        # elif meeting_id in connections:
+        #     if host_clients.get(meeting_id) == client_id:
+        #         new_host = next(iter(connections[meeting_id].keys()), None)
+        #         if new_host:
+        #             host_clients[meeting_id] = new_host
+        #             recording_clients[meeting_id] = new_host
+        #             print(f"Host disconnected, reassigning to {new_host}")
+        #             try:
+        #                 new_host_ws = connections[meeting_id][new_host].websocket
+        #                 await new_host_ws.send_text(json.dumps({
+        #                     "type": "connection_status",
+        #                     "status": "connected",
+        #                     "canRecord": True,
+        #                     "clientId": new_host,
+        #                 }))
+        #             except Exception:
+        #                 pass
+            await broadcast_client_list(meeting_id)
 
 
 @app.post("/meetings/{meeting_id}/test-message")
