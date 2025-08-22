@@ -5,7 +5,6 @@ import Spline from '@splinetool/react-spline/next';
 import { Button } from "@/components/ui/button"
 import { ScrollIndicator } from "@/components/ScrollIndicator"
 import { SmoothScrollButton } from "@/components/SmoothScrollButton"
-import { GradientBackground } from "@/components/ui/gradient-background";
 
 
 export default function Home() {
@@ -55,9 +54,15 @@ export default function Home() {
         <div className="py-16">
           <ScrollIndicator />
         </div>
-
         {/* Features */}
-        <section id="features" className="container space-y-6 py-8 md:py-12 lg:py-24">
+        <section id="features" className="container space-y-6 py-8 md:py-12 lg:py-24 relative">
+
+          <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-50">
+            <div className="absolute top-1/3 left-1/6 w-64 h-64 bg-gradient-to-br from-primary/80 via-purple-400 to-transparent rounded-full blur-3xl opacity-35"></div>
+            <div className="absolute bottom-1/2 right-1/5 w-48 h-48 bg-gradient-to-tl from-blue-400 via-primary to-transparent rounded-full blur-2xl opacity-25"></div>
+          </div>
+
+
           <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
             <h2 className="font-heading text-3xl leading-[1.3] sm:text-3xl md:text-6xl gradient-text font-medium">
               Transcribe. Format. Share.
@@ -103,7 +108,16 @@ export default function Home() {
             </div>
           </div>
         </section>
-        <section id="workflow" className="container space-y-8 py-12 md:py-16 lg:py-24">
+
+
+        <section id="workflow" className="container space-y-8 py-12 md:py-16 lg:py-24 relative">
+          <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-50">
+            <div className="absolute top-1/4 left-1/5 w-72 h-72 bg-gradient-to-br from-purple-400 via-indigo-500 to-transparent rounded-full blur-3xl opacity-20"></div>
+            <div className="absolute bottom-1/7 right-1/6 w-56 h-56 bg-gradient-to-tl from-sky-400 via-indigo-500/80 to-transparent rounded-full blur-2xl opacity-25"></div>
+            <div className="absolute top-2/3 left-1/2 transform -translate-x-1/2 w-40 h-40 bg-gradient-to-r from-indigo-400/60 via-purple-400 to-transparent rounded-full blur-xl opacity-30"></div>
+          </div>
+
+
           <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
             <h2 className="font-heading text-3xl leading-[1.1] sm:text-3xl md:text-6xl gradient-text font-medium">
               How It Works
@@ -141,7 +155,7 @@ export default function Home() {
           <div className="text-center mt-12">
             <Link href="create">
               <Button size="lg" className="bg-primary/90 text-lg backdrop-blur-sm rounded-2xl text-white opacity-90 hover:opacity-80">
-              {/* font-body bg-primary/90 backdrop-blur-sm px-8 rounded-2xl py-3 text-lg font-semibold text-white opacity-90 hover:opacity-80 */}
+                {/* font-body bg-primary/90 backdrop-blur-sm px-8 rounded-2xl py-3 text-lg font-semibold text-white opacity-90 hover:opacity-80 */}
                 Start a Meeting <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
