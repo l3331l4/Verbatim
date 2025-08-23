@@ -86,10 +86,11 @@ export default function CreateMeetingPage() {
                     <button
                         onClick={handleCreateMeeting}
                         disabled={loading}
-                        className={`glass-card px-10 py-4 text-xl text-white rounded-2xl duration-200 opacity-100 hover:opacity-80 transition-colors w-full flex items-center justify-center gap-2
+                        className={`glass-card font-body px-8 max-w-xs py-3 text-xl text-white rounded-2xl duration-200
+                             opacity-100 hover:opacity-80 transition-colors flex items-center justify-center gap-2
                             ${loading
-                                ? "bg-primary/70"
-                                : "bg-primary/90 hover:bg-primary/80 cursor-pointer"
+                                ? "bg-primary/50"
+                                : "bg-primary/80 hover:bg-primary/65 cursor-pointer"
                             }`}
                     >
                         {loading ? (
@@ -105,14 +106,11 @@ export default function CreateMeetingPage() {
 
                     {meetingId && (
                         <div className="mt-8 flex flex-col items-center text-lg text-gray-800 w-full">
-                            <div className="mb-6 bg-white/60 rounded-xl px-4 py-2 font-body text-base border border-primary/10">
-                                <strong>Meeting ID:</strong> <span className="break-all">{meetingId}</span>
-                            </div>
                             <button
                                 onClick={handleJoinMeeting}
-                                className="glass-card bg-primary/90 backdrop-blur-sm px-8 rounded-2xl py-3 text-lg font-semibold text-white opacity-90 hover:opacity-80 cursor-pointer w-full"
+                                className="glass-button rounded-xl font-body backdrop-blur-sm px-8 py-3 text-lg font-semibold text-black opacity-90 hover:opacity-80 cursor-pointer"
                             >
-                                Join Meeting
+                                Join as Host
                             </button>
                         </div>
                     )}

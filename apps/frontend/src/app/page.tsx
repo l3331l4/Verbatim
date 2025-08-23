@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link"
 import { Sparkles, ArrowRight, AudioLines, SquareMenu, Download, } from "lucide-react"
 import Spline from '@splinetool/react-spline/next';
@@ -42,9 +41,7 @@ export default function Home() {
               </Button>
               <SmoothScrollButton
                 targetId="features"
-                size="lg"
-                variant="outline"
-                className="glass-button rounded-xl cursor-pointer"
+                className="glass-button rounded-xl cursor-pointer text-black"
               >
                 Learn More
               </SmoothScrollButton>
