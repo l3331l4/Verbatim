@@ -1,7 +1,7 @@
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../..')))
-
+from datetime import datetime, timezone
 from apps.services.orchestrator.db.connection import get_db
 from apps.services.orchestrator.models.meeting import Meeting
 
@@ -30,6 +30,15 @@ def delete_meeting_by_id(meeting_id: str):
     meetings_collection = db["meetings"]
     result = meetings_collection.delete_one({"meeting_id": meeting_id})
     return result.deleted_count
+
+def end_meeting_by_id(meeting_id: str):
+    db = get_db()
+    meetings_collection = db["meetings"]
+    result = meetings_collection.update_one(
+        {"meeting_id": meeting_id},
+        {"$set": {"status": "ended", "ended_at": datetime.now(timezone.utc)}}
+    )
+    return result.modified_count
 
 if __name__ == "__main__":
     meeting_id = create_meeting(title="Test Meeting")

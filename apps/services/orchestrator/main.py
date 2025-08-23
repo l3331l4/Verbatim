@@ -4,7 +4,7 @@ import uuid
 import asyncio
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Path
 from fastapi.middleware.cors import CORSMiddleware
-from apps.services.orchestrator.db.meetings import create_meeting, delete_meeting_by_id
+from apps.services.orchestrator.db.meetings import create_meeting, end_meeting_by_id
 from apps.services.orchestrator.routes import health
 from pydantic import BaseModel
 from typing import NamedTuple, Optional, Dict
@@ -226,7 +226,7 @@ async def websocket_meeting(websocket: WebSocket, meeting_id: str):
             if meeting_id in host_clients:
                 host_clients.pop(meeting_id)
             await asr_client.disconnect_meeting(meeting_id)
-            delete_meeting_by_id(meeting_id)
+            end_meeting_by_id(meeting_id)
 
 
 @app.post("/meetings/{meeting_id}/test-message")

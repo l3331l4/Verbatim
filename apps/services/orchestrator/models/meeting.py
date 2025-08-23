@@ -8,3 +8,4 @@ class Meeting(BaseModel):
     title: str = Field(..., description="Meeting Title")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Creation timestamp")
     status: Literal["active", "ended"] = Field(..., description="Meeting status")
+    ended_at: Optional[datetime] = Field(default=None, description="Timestamp when meeting was ended")
