@@ -30,6 +30,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
     const [transcriptMode, setTranscriptMode] = useState<"interview" | "paragraph">("interview");
     const [copiedLink, setCopiedLink] = useState(false);
     const [loaded, setLoaded] = useState(false);
+    const [meetingLink, setMeetingLink] = useState<string>("");
     const pathname = typeof window !== "undefined" ? window.location.pathname : "";
 
     useEffect(() => {
@@ -76,9 +77,9 @@ export default function MeetingPage({ params }: MeetingPageProps) {
         });
     };
 
-    const meetingLink = typeof window !== "undefined"
-        ? `${window.location.origin}/meeting/${id}`
-        : `https://yourapp.com/meeting/${id}`;
+    useEffect(() => {
+        setMeetingLink(`${window.location.origin}/meeting/${id}`);
+    }, [id]);
 
     function exportTranscript() {
         const text = getTranscriptText();
@@ -130,7 +131,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
                                     Meeting Link:
                                 </span>
                                 <span
-                                    className="font-body text-xs text-gray-500 bg-white/70 px-2 py-1 rounded-md select-all max-w-1/3 truncate"
+                                    className="font-body text-xs text-gray-500 bg-white/70 px-2 py-1 rounded-md select-all truncate min-w-[180px] sm:min-w-[320px] max-w-[320px]"
                                     title={meetingLink}
                                 >
                                     {meetingLink}
