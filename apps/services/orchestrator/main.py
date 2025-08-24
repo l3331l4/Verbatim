@@ -5,6 +5,7 @@ import asyncio
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Path
 from fastapi.middleware.cors import CORSMiddleware
 from apps.services.orchestrator.db.meetings import create_meeting, end_meeting_by_id
+from apps.services.orchestrator.db.phrases import create_phrase
 from apps.services.orchestrator.routes import health
 from pydantic import BaseModel
 from typing import NamedTuple, Optional, Dict
@@ -106,6 +107,13 @@ async def broadcast_to_meeting(meeting_id: str, message: dict):
 
 
 async def forward_asr_text(meeting_id: str, message: str):
+    try:
+        data = json.loads(message)
+        if "text" in data and data["text"]:
+            create_phrase(meeting_id, data["text"])
+    except Exception as e:
+        logger.error(f"Failed to store phrase for meeting {meeting_id}: {e}")
+
     if meeting_id not in connections:
         return
     for client_info in list(connections[meeting_id].values()):
