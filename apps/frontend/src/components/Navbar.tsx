@@ -23,6 +23,30 @@ function getInitialActiveItem(pathname: string): string | null {
     return null
 }
 
+const scrollToElementWhenReady = (elementId: string, maxWaitTime = 2000): Promise<boolean> => {
+    return new Promise((resolve) => {
+        const startTime = Date.now();
+
+        const checkElement = () => {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.scrollIntoView({ behavior: "smooth" });
+                resolve(true);
+                return;
+            }
+
+            if (Date.now() - startTime > maxWaitTime) {
+                resolve(false);
+                return;
+            }
+
+            requestAnimationFrame(checkElement);
+        };
+
+        checkElement();
+    });
+};
+
 export default function Navbar() {
     const router = useRouter()
     const pathname = usePathname()
@@ -50,6 +74,7 @@ export default function Navbar() {
             setActiveItem(null);
         }
     }, [pathname]);
+
     const doNavigate = (href: string, label: string) => {
         setActiveItem(label);
 
@@ -68,19 +93,12 @@ export default function Navbar() {
                 }
             } else {
                 router.push("/");
-                setTimeout(() => {
-                    const scrollToSection = () => {
-                        const element = document.getElementById(href.replace("#", ""));
-                        if (element) {
-                            element.scrollIntoView({ behavior: "smooth" });
-                        }
-                    };
-                    let tries = 0;
-                    const interval = setInterval(() => {
-                        scrollToSection();
-                        tries++;
-                        if (tries > 10) clearInterval(interval);
-                    }, 100);
+                setTimeout(async () => {
+                    const elementId = href.replace("#", "");
+                    const success = await scrollToElementWhenReady(elementId);
+                    if (!success) {
+                        console.warn(`Element ${href} not found within timeout`);
+                    }
                 }, 400);
             }
             return;
