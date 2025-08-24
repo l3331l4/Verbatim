@@ -3,8 +3,11 @@ import { use, useState, useEffect, useRef } from "react";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import ClientAvatars from "@/components/ClientAvatars";
 import { getMeeting } from "@/lib/api";
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { usePathname } from "next/navigation";
+import { ChevronDown } from "lucide-react";
 
+import jsPDF from "jspdf";
 import MicrophoneButton from "@/components/MicrophoneButton";
 import AudioChunkRecorder from "@/components/AudioChunkRecorder";
 import Spline from "@splinetool/react-spline";
@@ -80,6 +83,48 @@ export default function MeetingPage({ params }: MeetingPageProps) {
     useEffect(() => {
         setMeetingLink(`${window.location.origin}/meeting/${id}`);
     }, [id]);
+
+    function exportAsTxt() {
+        const text = getTranscriptText();
+        const blob = new Blob([text], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "transcript.txt";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 0);
+    }
+
+    function exportAsMarkdown() {
+        let md = "";
+        if (transcriptMode === "paragraph") {
+            md = transcripts.map(t => t.text).join(" ");
+        } else {
+            md = transcripts.map(t => `- **[${t.timestamp}]** ${t.text}`).join("\n");
+        }
+        const blob = new Blob([md], { type: "text/markdown" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "transcript.md";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 0);
+    }
+
+    function exportAsPdf() {
+        const doc = new jsPDF();
+        const text = getTranscriptText();
+        doc.text(text, 10, 10);
+        doc.save("transcript.pdf");
+    }
 
     function exportTranscript() {
         const text = getTranscriptText();
@@ -250,21 +295,49 @@ export default function MeetingPage({ params }: MeetingPageProps) {
                                 {copied ? "Copied!" : "Copy Transcript"}
                             </button>
                             {/* Download Transcript Button */}
-                            <button
-                                onClick={exportTranscript}
-                                className="glass-card-less-depth text-white rounded px-4 py-2 transition-all duration-200 opacity-70 hover:opacity-60"
-                                style={{
-                                    background: "linear-gradient(315deg, #9374E8 0%, #A8AAFF 100%)",
-                                    border: "none",
-                                    borderRadius: "1rem",
-                                    padding: "0.5rem 1rem",
-                                    cursor: "pointer",
-                                    boxShadow: "0 4px 12px rgba(139, 92, 246, 0.3)",
-                                    transition: "all 0.2s ease",
-                                }}
-                            >
-                                Export Transcript
-                            </button>
+                            <Menu>
+                                <MenuButton className="text-white rounded px-4 py-2 flex items-center gap-1 transition-all duration-200 opacity-70 hover:opacity-60"
+                                    style={{
+                                        background: "linear-gradient(315deg, #9374E8 0%, #A8AAFF 100%)",
+                                        border: "none",
+                                        borderRadius: "1rem",
+                                        padding: "0.5rem 1rem",
+                                        cursor: "pointer",
+                                        boxShadow: "0 4px 12px rgba(139, 92, 246, 0.3)",
+                                        transition: "all 0.2s ease",
+                                    }}
+                                >
+                                    Export Transcript
+                                    <ChevronDown className="w-5 h-5" />
+                                </MenuButton>
+                                <MenuItems anchor="bottom" className="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black/5 focus:outline-none z-50">
+                                    <MenuItem>
+                                        <button
+                                            onClick={exportAsTxt}
+                                            className="cursor-pointer block w-full text-left px-4 py-2 text-sm text-gray-900 rounded-md data-[focus=true]:bg-indigo-100 transition hover:bg-primary/10"
+                                        >
+                                            Plain Text (.txt)
+                                        </button>
+                                    </MenuItem>
+                                    <MenuItem>
+                                        <button
+                                            onClick={exportAsMarkdown}
+                                            className="cursor-pointer block w-full text-left px-4 py-2 text-sm text-gray-900 rounded-md data-[focus=true]:bg-indigo-100 transition hover:bg-primary/10"
+                                        >
+                                            Markdown (.md)
+                                        </button>
+                                    </MenuItem>
+                                    <MenuItem>
+                                        <button
+                                            onClick={exportAsPdf}
+                                            className="cursor-pointer block w-full text-left px-4 py-2 text-sm text-gray-900 rounded-md data-[focus=true]:bg-indigo-100 transition hover:bg-primary/10"
+                                        >
+                                            PDF (.pdf)
+                                        </button>
+                                    </MenuItem>
+                                </MenuItems>
+                            </Menu>
+
                         </div>
                     )}
 

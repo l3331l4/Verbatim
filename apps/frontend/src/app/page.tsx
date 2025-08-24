@@ -89,7 +89,7 @@ export default function Home() {
               <div className="space-y-2 pt-6">
                 <h3 className="font-bold font-heading">Flexible Formatting</h3>
                 <p className="font-body text-sm text-muted-foreground">
-                  Choose between paragraph style for easy reading, or line-by-line with timestamps for more structured transcripts.
+                  Choose between paragraph style for easy reading, or line-by-line with timestamps for more structured transcripts. Export in multiple formats (PDF, Markdown, TXT).
                 </p>
               </div>
             </div>
