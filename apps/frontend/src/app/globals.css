@@ -87,6 +87,11 @@
   font-display: swap;
 }
 
+.transcript-container {
+  overscroll-behavior: contain;
+  isolation: isolate;
+}
+
 /* semantic utility classes */
 .font-heading {
   font-family: "Satoshi", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;

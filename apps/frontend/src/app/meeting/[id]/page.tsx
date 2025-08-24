@@ -176,7 +176,10 @@ export default function MeetingPage({ params }: MeetingPageProps) {
                     {/* Transcript Section */}
                     <div
                         ref={transcriptContainerRef}
-                        className="min-h-[300px] max-h-[400px] overflow-y-auto mb-6 p-6 rounded-2xl"
+                        className="transcript-container min-h-[300px] max-h-[400px] overflow-y-auto mb-6 p-6 rounded-2xl "
+                        onWheel={(e) => {
+                            e.stopPropagation();
+                        }}
                     >
                         {transcripts.length === 0 ? (
                             <div className="flex flex-col items-center justify-center min-h-[240px] text-center">
