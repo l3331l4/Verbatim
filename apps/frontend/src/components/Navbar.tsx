@@ -30,7 +30,7 @@ const scrollToElementWhenReady = (elementId: string, maxWaitTime = 2000): Promis
         const checkElement = () => {
             const element = document.getElementById(elementId);
             if (element) {
-                element.scrollIntoView({ behavior: "smooth" });
+                element.scrollIntoView({ behavior: "instant" });
                 resolve(true);
                 return;
             }
@@ -79,7 +79,9 @@ export default function Navbar() {
         setActiveItem(label);
 
         if (href === "/") {
-            router.push("/");
+            if (pathname !== "/") {
+                router.push("/");
+            }
             window.scrollTo({ top: 0, behavior: "smooth" });
             return;
         }
