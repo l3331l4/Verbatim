@@ -170,10 +170,6 @@ async def websocket_meeting(websocket: WebSocket, meeting_id: str):
         if current_host == client_id:
             recording_clients[meeting_id] = client_id
             print(f"Host {client_id} reconnected")
-        elif not current_host and len(connections[meeting_id]) == 0:
-            recording_clients[meeting_id] = client_id
-            host_clients[meeting_id] = client_id
-            print(f"Meeting revival - setting {client_id} as new host")
 
     connections[meeting_id][client_id] = ClientInfo(websocket, client_id)
 
@@ -218,6 +214,7 @@ async def websocket_meeting(websocket: WebSocket, meeting_id: str):
     finally:
         if meeting_id in connections and client_id in connections[meeting_id]:
             del connections[meeting_id][client_id]
+            await broadcast_client_list(meeting_id)
 
         if meeting_id in connections and not connections[meeting_id]:
             del connections[meeting_id]
