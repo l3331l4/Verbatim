@@ -6,19 +6,21 @@ interface SmoothScrollButtonProps extends React.ButtonHTMLAttributes<HTMLButtonE
   targetId: string;
   children: React.ReactNode;
   className?: string;
+  size?: "sm" | "lg" | "default" | "icon";
 }
 
-export function SmoothScrollButton({ targetId, children, className, ...props }: SmoothScrollButtonProps) {
+export function SmoothScrollButton({ targetId, children, className, size = "lg", ...props }: SmoothScrollButtonProps) {
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    document.getElementById(targetId)?.scrollIntoView({ 
-      behavior: 'smooth' 
+    document.getElementById(targetId)?.scrollIntoView({
+      behavior: 'smooth'
     });
   };
 
   return (
-    <Button 
-      onClick={handleClick} 
+    <Button
+      size={size}
+      onClick={handleClick}
       className={className}
       {...props}
     >

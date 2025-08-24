@@ -42,6 +42,7 @@ export default function Home() {
               <SmoothScrollButton
                 targetId="features"
                 className="glass-button rounded-xl cursor-pointer text-black"
+                size="lg"
               >
                 Learn More
               </SmoothScrollButton>
@@ -139,7 +140,7 @@ export default function Home() {
             <div className="glass-card p-6 hover:border-primary/20 hover:bg-primary/5 transition-colors duration-300">
               <div className="space-y-2">
                 <h3 className="font-heading font-bold text-xl">Format Your Transcript</h3>
-                <p className="font-body text-muted-foreground">Choose paragraph style for line-by-line with timestamps for more structured transcripts.</p>
+                <p className="font-body text-muted-foreground">Choose paragraph style for easier readability, or line-by-line with timestamps for more structured transcripts.</p>
               </div>
             </div>
             <div className="glass-card p-6 hover:border-primary/20 hover:bg-primary/5 transition-colors duration-300">
