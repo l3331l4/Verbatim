@@ -21,3 +21,7 @@ async def health_check():
     }
 
     return JSONResponse(content=response, status_code=http_status)
+
+@router.get("/healthz")
+async def healthz():
+    return JSONResponse(content={"status": "ok"}, status_code=200)
