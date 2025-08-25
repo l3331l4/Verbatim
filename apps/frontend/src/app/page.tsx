@@ -89,7 +89,7 @@ export default function Home() {
               <div className="space-y-2 pt-6">
                 <h3 className="font-bold font-heading">Flexible Formatting</h3>
                 <p className="font-body text-sm text-muted-foreground">
-                  Choose between paragraph style for easy reading, or line-by-line with timestamps for more structured transcripts. Export in multiple formats (PDF, Markdown, TXT).
+                  Choose between paragraph style for easy reading, or line-by-line with timestamps for more structured transcripts.
                 </p>
               </div>
             </div>
@@ -100,7 +100,7 @@ export default function Home() {
               <div className="space-y-2 pt-6">
                 <h3 className="font-bold font-heading">Instant Export & Sharing</h3>
                 <p className="font-body text-sm text-muted-foreground">
-                  Copy, download, or share your transcripts right away. Perfect for collaboration or later review.
+                  Copy, download, or share your transcripts right away. Export in multiple formats (PDF, Markdown, TXT).
                 </p>
               </div>
             </div>
@@ -121,7 +121,7 @@ export default function Home() {
               How It Works
             </h2>
             <p className="font-body max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
-              Start a meeting and see your conversations transcribed in real time. From creation to sharing, here’s the simple workflow.
+              Start a meeting and see your conversations transcribed in real time. <br/> From creation to sharing, here's the simple workflow.
             </p>
           </div>
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 text-center">
@@ -146,7 +146,7 @@ export default function Home() {
             <div className="glass-card p-6 hover:border-primary/20 hover:bg-primary/5 transition-colors duration-300">
               <div className="space-y-2">
                 <h3 className="font-heading font-bold text-xl">Export & Share</h3>
-                <p className="font-body text-muted-foreground">Copy, download, or share your transcripts instantly for collaboration or review.</p>
+                <p className="font-body text-muted-foreground">Copy, download, or share your transcripts instantly for collaboration or review. Export in multiple formats <br/> (PDF, Markdown, TXT).</p>
               </div>
             </div>
           </div>
