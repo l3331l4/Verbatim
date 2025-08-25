@@ -22,6 +22,6 @@ async def health_check():
 
     return JSONResponse(content=response, status_code=http_status)
 
-@router.get("/healthz")
+@router.api_route("/healthz", methods=["GET", "HEAD"])
 async def healthz():
     return JSONResponse(content={"status": "ok"}, status_code=200)

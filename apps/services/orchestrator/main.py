@@ -38,6 +38,7 @@ origins = [
     "http://localhost:3000",
     "http://localhost:8000",
     "http://localhost:8001",
+    "https://verbatim-orchestrator.onrender.com",
 ]
 
 app.add_middleware(
