@@ -29,6 +29,7 @@ class ClientInfo(NamedTuple):
     client_id: str
 
 
+end_meeting_tasks = {}
 connections: dict[str, dict[str, ClientInfo]] = {}
 recording_clients: Dict[str, str] = {}
 host_clients: Dict[str, str] = {}
@@ -51,6 +52,7 @@ app.add_middleware(
 
 app.include_router(health.router)
 app.include_router(meetings.router)
+
 
 class MeetingCreateRequest(BaseModel):
     title: Optional[str] = None
@@ -77,6 +79,14 @@ def get_meeting(meeting_id: str = Path(...)):
     if not meeting:
         raise HTTPException(status_code=404, detail="Meeting not found")
     return {"meeting_id": meeting_id, "title": meeting.title}
+
+
+async def delayed_end_meeting(meeting_id: str, delay_seconds: int = 600):
+    logger.info(f"Scheduling meeting {meeting_id} to end in {delay_seconds} seconds")
+    await asyncio.sleep(delay_seconds)
+    logger.info(f"Ending meeting {meeting_id} after delay")
+    end_meeting_by_id(meeting_id)
+    end_meeting_tasks.pop(meeting_id, None)
 
 
 async def broadcast_client_list(meeting_id: str):
@@ -185,6 +195,10 @@ async def websocket_meeting(websocket: WebSocket, meeting_id: str):
 
     connections[meeting_id][client_id] = ClientInfo(websocket, client_id)
 
+    if meeting_id in end_meeting_tasks:
+        end_meeting_tasks[meeting_id].cancel()
+        end_meeting_tasks.pop(meeting_id, None)
+
     print(
         f"Meeting {meeting_id} now has {len(connections[meeting_id])} clients")
 
@@ -235,7 +249,10 @@ async def websocket_meeting(websocket: WebSocket, meeting_id: str):
             if meeting_id in host_clients:
                 host_clients.pop(meeting_id)
             await asr_client.disconnect_meeting(meeting_id)
-            end_meeting_by_id(meeting_id)
+
+            if meeting_id not in end_meeting_tasks:
+                end_meeting_tasks[meeting_id] = asyncio.create_task(
+                    delayed_end_meeting(meeting_id, delay_seconds=600))
 
 
 @app.post("/meetings/{meeting_id}/test-message")
