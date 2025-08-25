@@ -7,7 +7,7 @@ from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Path
 from fastapi.middleware.cors import CORSMiddleware
 from db.meetings import create_meeting, end_meeting_by_id
 from db.phrases import create_phrase
-from routes import health
+from routes import health, meetings
 from pydantic import BaseModel
 from typing import NamedTuple, Optional, Dict
 from asr_client import asr_client
@@ -50,7 +50,7 @@ app.add_middleware(
 )
 
 app.include_router(health.router)
-
+app.include_router(meetings.router)
 
 class MeetingCreateRequest(BaseModel):
     title: Optional[str] = None

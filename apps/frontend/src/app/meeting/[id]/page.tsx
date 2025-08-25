@@ -1,12 +1,13 @@
 "use client";
 import { use, useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import ClientAvatars from "@/components/ClientAvatars";
-import { getMeeting } from "@/lib/api";
+import { getMeeting, getMeetingStatus } from "@/lib/api";
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { usePathname } from "next/navigation";
 import { ChevronDown } from "lucide-react";
-
+import { Spinner, type SpinnerProps } from '@/components/ui/shadcn-io/spinner';
 import jsPDF from "jspdf";
 import MicrophoneButton from "@/components/MicrophoneButton";
 import AudioChunkRecorder from "@/components/AudioChunkRecorder";
@@ -24,17 +25,38 @@ interface TranscriptMessage {
 
 export default function MeetingPage({ params }: MeetingPageProps) {
 
+    const router = useRouter();
     const { id } = use(params);
+
+    
     const [meetingTitle, setMeetingTitle] = useState<string | null>(null);
-    const { status, sendMessage, lastMessage, sendBinary, canRecord, clientId, clients } = useWebSocket(id);
     const [transcripts, setTranscripts] = useState<TranscriptMessage[]>([]);
-    const transcriptContainerRef = useRef<HTMLDivElement>(null);
     const [copied, setCopied] = useState(false);
     const [transcriptMode, setTranscriptMode] = useState<"interview" | "paragraph">("interview");
     const [copiedLink, setCopiedLink] = useState(false);
     const [loaded, setLoaded] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [meetingLink, setMeetingLink] = useState<string>("");
     const pathname = typeof window !== "undefined" ? window.location.pathname : "";
+
+
+    const transcriptContainerRef = useRef<HTMLDivElement>(null);
+
+
+    const { status, sendMessage, lastMessage, sendBinary, canRecord, clientId, clients } = useWebSocket(id);
+
+    useEffect(() => {
+        async function checkMeeting() {
+            try {
+                await getMeetingStatus(id);
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                setLoading(false);
+            } catch (err) {
+                router.replace("/create?error=notfound");
+            }
+        }
+        checkMeeting();
+    }, [id, router]);
 
     useEffect(() => {
         getMeeting(id)
@@ -64,6 +86,36 @@ export default function MeetingPage({ params }: MeetingPageProps) {
         }
     }, [lastMessage]);
 
+    useEffect(() => {
+        setMeetingLink(`${window.location.origin}/meeting/${id}`);
+    }, [id]);
+
+    if (loading) {
+        return (
+            <main>
+                <Spline
+                    scene="https://prod.spline.design/NK5tL3OEjwwjxb5y/scene.splinecode"
+                    onLoad={() => setLoaded(true)}
+                    className={`fixed w-full h-full z-0 transition-opacity duration-2000 cubic-bezier(0.37, 0, 0.63, 1) ${loaded ? "opacity-100" : "opacity-0"}`}
+                />
+                <div
+                    className="fixed bottom-0 right-0 w-48 h-18 rounded-lg z-0 pointer-events-none"
+                    style={{ backgroundColor: "#FFFAFA" }}
+                    aria-hidden="true"
+                />
+
+                <div className="min-h-screen flex items-center justify-center relative"
+                    style={{
+                    }}
+                >
+                    <div className="flex items-center justify-center">
+                        <Spinner className="text-gray-400" variant="circle" size={64} />
+                    </div>
+                </div>
+            </main>
+        );
+    } 
+
     function getTranscriptText() {
         if (transcriptMode === "paragraph") {
             return transcripts.map(t => t.text).join(" ");
@@ -79,10 +131,6 @@ export default function MeetingPage({ params }: MeetingPageProps) {
             setTimeout(() => setCopied(false), 1500);
         });
     };
-
-    useEffect(() => {
-        setMeetingLink(`${window.location.origin}/meeting/${id}`);
-    }, [id]);
 
     function exportAsTxt() {
         const text = getTranscriptText();
@@ -126,23 +174,6 @@ export default function MeetingPage({ params }: MeetingPageProps) {
         doc.save("transcript.pdf");
     }
 
-    function exportTranscript() {
-        const text = getTranscriptText();
-        const blob = new Blob([text], { type: "text/plain" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "transcript.txt";
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }, 0);
-    }
-
-
-
     return (
 
         <main>
@@ -162,6 +193,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
                 style={{
                 }}
             >
+
                 {/* Glass Panel */}
                 <div className="glass-card-less-depth shadow-2xl backdrop-blur-2xl w-full max-w-7xl px-8 pt-8 pb-0">
                     {/* glass-card w-full max-w-7xl p-8 */}
