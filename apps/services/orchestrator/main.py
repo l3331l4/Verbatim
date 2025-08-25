@@ -1,20 +1,27 @@
+from contextlib import asynccontextmanager
 import logging
 import json
 import uuid
 import asyncio
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Path
 from fastapi.middleware.cors import CORSMiddleware
-from apps.services.orchestrator.db.meetings import create_meeting, end_meeting_by_id
-from apps.services.orchestrator.db.phrases import create_phrase
-from apps.services.orchestrator.routes import health
+from db.meetings import create_meeting, end_meeting_by_id
+from db.phrases import create_phrase
+from routes import health
 from pydantic import BaseModel
 from typing import NamedTuple, Optional, Dict
-from .asr_client import asr_client
+from asr_client import asr_client
 ASR_CLIENT_ID_PREFIX = "asr_service_"
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    asr_client.set_broadcast_callback(forward_asr_text)
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 
 class ClientInfo(NamedTuple):
@@ -60,14 +67,15 @@ def create_meeting_endpoint(meeting: MeetingCreateRequest):
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Failed to create meeting: {e}")
-    
+
+
 @app.get("/meetings/{meeting_id}")
 def get_meeting(meeting_id: str = Path(...)):
     from apps.services.orchestrator.db.meetings import get_meeting_by_id
     meeting = get_meeting_by_id(meeting_id)
     if not meeting:
         raise HTTPException(status_code=404, detail="Meeting not found")
-    return {"meeting_id": meeting_id, "title": meeting.title}    
+    return {"meeting_id": meeting_id, "title": meeting.title}
 
 
 async def broadcast_client_list(meeting_id: str):
@@ -121,11 +129,6 @@ async def forward_asr_text(meeting_id: str, message: str):
             await client_info.websocket.send_text(message)
         except Exception as e:
             logger.error(f"Error forwarding ASR text: {e}")
-
-
-@app.on_event("startup")
-async def _init_asr_callback():
-    asr_client.set_broadcast_callback(forward_asr_text)
 
 
 @app.websocket("/ws/meetings/{meeting_id}")
