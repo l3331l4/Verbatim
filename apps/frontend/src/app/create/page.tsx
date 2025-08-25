@@ -1,7 +1,8 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createMeeting } from "../../lib/api";
+import ErrorModal from "@/components/ui/ErrorModal";
 import Spline from "@splinetool/react-spline";
 import { ArrowRight } from "lucide-react";
 
@@ -12,6 +13,15 @@ export default function CreateMeetingPage() {
     const [error, setError] = useState<string | null>(null);
     const [loaded, setLoaded] = useState(false);
     const router = useRouter();
+
+    const searchParams = useSearchParams();
+    const [showError, setShowError] = useState(false);
+
+    useEffect(() => {
+        if (searchParams.get("error") === "notfound") {
+            setShowError(true);
+        }
+    }, [searchParams]);
 
     const handleCreateMeeting = async () => {
         if (title.trim() === "") {
@@ -43,6 +53,14 @@ export default function CreateMeetingPage() {
 
     return (
         <div className="relative w-full min-h-screen flex items-center justify-center">
+            <>
+                <ErrorModal
+                    open={showError}
+                    title="Meeting Not Found"
+                    message="The meeting you tried to join does not exist or is no longer active."
+                    onClose={() => setShowError(false)}
+                />
+            </>
             <div className="absolute inset-0 blur-xl">
                 <Spline
                     scene="https://prod.spline.design/NK5tL3OEjwwjxb5y/scene.splinecode"
