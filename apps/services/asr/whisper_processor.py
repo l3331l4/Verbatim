@@ -100,6 +100,7 @@ class WhisperProcessor:
 
             combined_text = " ".join(segment_texts)
             return {
+                'type': 'transcript',
                 'segments_processed': len(segment_texts),
                 'audio_duration': len(audio_data) / 16000,
                 'language_confidence': info.language_probability,

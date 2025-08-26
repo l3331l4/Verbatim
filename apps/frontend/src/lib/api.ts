@@ -28,8 +28,11 @@ async function fetchWrapper<T>(endpoint: string, options: RequestInit = {}): Pro
         }
 
         return await res.json();
-    } catch (err: any) {
-        throw new Error(err.message || "Network error");
+    } catch (err: unknown) {
+        if (err instanceof Error) {
+            throw new Error(err.message);
+        }
+        throw new Error("Network error");
     }
 }
 
@@ -52,7 +55,7 @@ export async function getMeetingStatus(meetingId: string): Promise<MeetingStatus
         return await fetchWrapper<MeetingStatusResponse>(`/meetings/${meetingId}/status`, {
             method: "GET"
         });
-    } catch (err: any) {
+    } catch (err: unknown) {
         throw err;
     }
 }

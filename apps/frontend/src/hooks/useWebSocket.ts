@@ -5,6 +5,11 @@ interface Client {
   isRecording: boolean;
 }
 
+interface BaseMessage {
+  type: string;
+  [key: string]: unknown;
+}
+
 export function useWebSocket(meetingId: string) {
   const wsRef = useRef<WebSocket | null>(null);
   const [status, setStatus] = useState<"connecting" | "connected" | "disconnected">("connecting");
@@ -248,12 +253,11 @@ export function useWebSocket(meetingId: string) {
         wsRef.current = null;
       }
       
-      // Clear all timers
       clearAllTimers();
     };
   }, [meetingId]); 
 
-  const sendMessage = useCallback((message: any) => {
+  const sendMessage = useCallback((message: BaseMessage) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN && !isCleaningUpRef.current) {
       if (message.type === "ping") {
         sendPing();
