@@ -2,7 +2,7 @@ fastapi
 uvicorn
 websockets
 numpy
-openai-whisper
 faster-whisper
 hf-xet
+torch --index-url https://download.pytorch.org/whl/cpu
 webrtcvad
