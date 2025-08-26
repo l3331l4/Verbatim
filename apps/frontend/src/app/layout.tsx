@@ -49,13 +49,13 @@ export const metadata: Metadata = {
   description: "Capture every word with Verbatim. Real-time AI transcription with flexible formatting, instant export, and seamless sharing.",
   keywords: ["transcription", "speech-to-text"],
   authors: [{ name: "Radi Adil" }],
-  metadataBase: new URL("http://localhost:3000"),
+  metadataBase: new URL("https://verbatim-pi.vercel.app"),
 
   openGraph: {
     title: "Verbatim - Real-Time AI Transcription",
     description:
       "Capture every word with Verbatim. Real-time AI transcription with flexible formatting, instant export, and seamless sharing.",
-    url: "http://localhost:3000",
+    url: "https://verbatim-pi.vercel.app",
     siteName: "Verbatim",
     images: [
       {
