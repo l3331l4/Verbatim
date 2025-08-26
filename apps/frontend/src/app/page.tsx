@@ -121,7 +121,7 @@ export default function Home() {
               How It Works
             </h2>
             <p className="font-body max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
-              Start a meeting and see your conversations transcribed in real time. <br/> From creation to sharing, here's the simple workflow.
+              Start a meeting and see your conversations transcribed in real time. <br/> From creation to sharing, here&apos;s the simple workflow.
             </p>
           </div>
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 text-center">

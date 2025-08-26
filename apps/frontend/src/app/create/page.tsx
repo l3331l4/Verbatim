@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createMeeting } from "../../lib/api";
 import ErrorModal from "@/components/ui/ErrorModal";
@@ -13,15 +13,29 @@ export default function CreateMeetingPage() {
     const [error, setError] = useState<string | null>(null);
     const [loaded, setLoaded] = useState(false);
     const router = useRouter();
-
-    const searchParams = useSearchParams();
     const [showError, setShowError] = useState(false);
 
-    useEffect(() => {
-        if (searchParams.get("error") === "notfound") {
-            setShowError(true);
-        }
-    }, [searchParams]);
+    function ErrorHandler() {
+        const searchParams = useSearchParams();
+
+        useEffect(() => {
+            if (searchParams.get("error") === "notfound" && !showError) {
+                setShowError(true);
+            }
+        }, [searchParams]);
+
+        return null;
+    }
+
+    const handleCloseError = () => {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("error");
+        router.replace(url.pathname + url.search, { scroll: false });
+
+        setTimeout(() => {
+            setShowError(false);
+        }, 100);
+    };
 
     const handleCreateMeeting = async () => {
         if (title.trim() === "") {
@@ -35,7 +49,7 @@ export default function CreateMeetingPage() {
             const data = await createMeeting(title);
             await new Promise((res) => setTimeout(res, 1200));
             setMeetingId(data.meeting_id);
-        } catch (err) {
+        } catch {
             setMeetingId("Error creating meeting");
         } finally {
             setLoading(false);
@@ -53,12 +67,15 @@ export default function CreateMeetingPage() {
 
     return (
         <div className="relative w-full min-h-screen flex items-center justify-center">
+            <Suspense fallback={null}>
+                <ErrorHandler />
+            </Suspense>
             <>
                 <ErrorModal
                     open={showError}
                     title="Meeting Not Found"
                     message="The meeting you tried to join does not exist or is no longer active."
-                    onClose={() => setShowError(false)}
+                    onClose={handleCloseError}
                 />
             </>
             <div className="absolute inset-0 blur-xl">

@@ -5,11 +5,9 @@ import { useWebSocket } from "@/hooks/useWebSocket";
 import ClientAvatars from "@/components/ClientAvatars";
 import { getMeeting, getMeetingStatus } from "@/lib/api";
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { usePathname } from "next/navigation";
 import { ChevronDown } from "lucide-react";
-import { Spinner, type SpinnerProps } from '@/components/ui/shadcn-io/spinner';
+import { Spinner } from '@/components/ui/shadcn-io/spinner';
 import jsPDF from "jspdf";
-import MicrophoneButton from "@/components/MicrophoneButton";
 import AudioChunkRecorder from "@/components/AudioChunkRecorder";
 import Spline from "@splinetool/react-spline";
 
@@ -37,13 +35,11 @@ export default function MeetingPage({ params }: MeetingPageProps) {
     const [loaded, setLoaded] = useState(false);
     const [loading, setLoading] = useState(true);
     const [meetingLink, setMeetingLink] = useState<string>("");
-    const pathname = typeof window !== "undefined" ? window.location.pathname : "";
-
 
     const transcriptContainerRef = useRef<HTMLDivElement>(null);
 
 
-    const { status, sendMessage, lastMessage, sendBinary, canRecord, clientId, clients } = useWebSocket(id);
+    const { status, lastMessage, sendBinary, canRecord, clientId, clients } = useWebSocket(id);
 
     useEffect(() => {
         async function checkMeeting() {
@@ -51,7 +47,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
                 await getMeetingStatus(id);
                 await new Promise(resolve => setTimeout(resolve, 3000));
                 setLoading(false);
-            } catch (err) {
+            } catch {
                 router.replace("/create?error=notfound");
             }
         }

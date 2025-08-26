@@ -12,7 +12,7 @@ export default function MicrophoneButton() {
 
     const logAudioLevel = () => {
         if (!analyserRef.current || !dataArrayRef.current) return;
-        analyserRef.current.getByteTimeDomainData(dataArrayRef.current);
+        analyserRef.current.getByteTimeDomainData(dataArrayRef.current as Uint8Array<ArrayBuffer>);
 
         let sum = 0;
         for (let i = 0; i < dataArrayRef.current.length; i++) {
@@ -48,7 +48,7 @@ export default function MicrophoneButton() {
             setIsMicActive(true);
             console.log("Microphone permission granted");
 
-            const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+            const audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
             audioContextRef.current = audioContext;
             const source = audioContext.createMediaStreamSource(userStream);
             const analyser = audioContext.createAnalyser();

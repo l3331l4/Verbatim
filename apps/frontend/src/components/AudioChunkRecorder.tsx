@@ -41,7 +41,6 @@ export default function AudioChunkRecorder({ meetingId, status, sendBinary, canR
 
             let chunkCount = 0;
             let totalSamples = 0;
-            let startTime = Date.now();
 
             workletNode.port.onmessage = (event) => {
 
