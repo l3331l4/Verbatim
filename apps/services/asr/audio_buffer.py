@@ -1,9 +1,14 @@
-import webrtcvad
 from datetime import datetime, timedelta, timezone
 import numpy as np
 import logging
+from typing import Optional
 
 logger = logging.getLogger(__name__)
+
+try:
+    import webrtcvad
+except Exception:
+    webrtcvad = None
 
 class MeetingAudioBuffer:
 
@@ -15,7 +20,16 @@ class MeetingAudioBuffer:
         self.phrase_bytes = bytes()
         self.last_audio_time = None
 
-        self.vad = webrtcvad.Vad(3)
+        if webrtcvad is not None:
+            self.vad = webrtcvad.Vad(3)
+        else:
+            class _StubVad:
+                def __init__(self, mode=3):
+                    pass
+                def is_speech(self, frame, sample_rate):
+                    return False
+            self.vad = _StubVad()
+
         self.min_audio_duration = 0.2
 
         self.frame_buffer = bytes()
@@ -34,7 +48,7 @@ class MeetingAudioBuffer:
                 return False
         return False
 
-    def add_audio_chunk(self, audio_bytes: bytes) -> bool:
+    def add_audio_chunk(self, audio_bytes: bytes) -> Optional[np.ndarray]:
         now = datetime.now(timezone.utc)
 
         if self._has_speech_webrtc(audio_bytes):

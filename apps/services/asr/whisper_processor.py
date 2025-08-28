@@ -1,9 +1,8 @@
 import os
-import torch
 import numpy as np
 from datetime import datetime, timezone
 from typing import Optional, Dict
-from faster_whisper import WhisperModel
+WhisperModel = None
 
 
 class WhisperProcessor:
@@ -18,7 +17,12 @@ class WhisperProcessor:
 
     def load_model(self):
         try:
-
+            from faster_whisper import WhisperModel
+        except Exception:
+            return False
+            
+        try:
+            import torch
             device = "cuda" if torch.cuda.is_available() else "cpu"
             if device == "cuda":
                 self.compute_type = "float16"
