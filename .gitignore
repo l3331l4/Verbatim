@@ -1,6 +1,7 @@
 # Python
 apps/services/orchestrator/venv/
 **/venv/
+**/*venv/
 __pycache__/
 *.pyc
 *.pyo

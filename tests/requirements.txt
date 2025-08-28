@@ -1,0 +1,8 @@
+pytest 
+pytest-asyncio 
+httpx 
+fastapi[all] 
+mongomock 
+pytest-mock 
+websockets
+numpy
