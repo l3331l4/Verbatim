@@ -12,7 +12,7 @@ except Exception:
 
 class MeetingAudioBuffer:
 
-    def __init__(self, meeting_id: str, phrase_timeout: float = 0.5, max_phrase_duration: float = 30.0):
+    def __init__(self, meeting_id: str, phrase_timeout: float = 0.5, max_phrase_duration: float = 30.0, vad: Optional[object] = None):
         self.meeting_id = meeting_id
         self.max_phrase_duration = max_phrase_duration
         self.phrase_timeout = phrase_timeout
@@ -20,7 +20,9 @@ class MeetingAudioBuffer:
         self.phrase_bytes = bytes()
         self.last_audio_time = None
 
-        if webrtcvad is not None:
+        if vad is not None:
+            self.vad = vad
+        elif webrtcvad is not None:
             self.vad = webrtcvad.Vad(3)
         else:
             class _StubVad:
