@@ -40,7 +40,9 @@ origins = [
     "http://localhost:8000",
     "http://localhost:8001",
     "https://verbatim-orchestrator.onrender.com",
-    "https://verbatim-pi.vercel.app"
+    "https://verbatim-pi.vercel.app",
+    "https://www.verbatim.lol",
+    "https://verbatim.lol",
 ]
 
 app.add_middleware(
