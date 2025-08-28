@@ -27,6 +27,7 @@ class ASRClient:
         if meeting_id in self.connections and not self.connections[meeting_id].closed:
             return True
         try:
+            logger.info(f"Connecting to ASR service at {self.asr_service_url}/process/{meeting_id}")
             ws_url = f"{self.asr_service_url}/process/{meeting_id}"
             self.connections[meeting_id] = await websockets.connect(ws_url)
 
