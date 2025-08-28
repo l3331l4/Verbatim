@@ -34,10 +34,19 @@ def delete_meeting_by_id(meeting_id: str):
 def end_meeting_by_id(meeting_id: str):
     db = get_db()
     meetings_collection = db["meetings"]
+    ended_at = datetime.now(timezone.utc)
     result = meetings_collection.update_one(
         {"meeting_id": meeting_id},
-        {"$set": {"status": "ended", "ended_at": datetime.now(timezone.utc)}}
+        {"$set": {"status": "ended", "ended_at": ended_at}}
     )
+    if result.modified_count:
+        try:
+            db["phrases"].update_many(
+                {"meeting_id": meeting_id},
+                {"$set": {"meeting_ended_at": ended_at}}
+            )
+        except Exception:
+            pass
     return result.modified_count
 
 if __name__ == "__main__":
